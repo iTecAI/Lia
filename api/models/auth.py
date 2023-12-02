@@ -54,3 +54,10 @@ class User(Document):
 
     async def get_sessions(self) -> list[Session]:
         return await Session.find(Session.user_id == self.id).to_list()
+
+    @classmethod
+    def create(cls, username: str, password: str) -> "User":
+        return User(
+            username=username,
+            password=Password.create(password)
+        )
