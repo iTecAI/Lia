@@ -1,0 +1,42 @@
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+
+    volumes:
+      - ./data/mongo:/data/db
+  api:
+    restart: always
+    build: 
+      context: ./api
+      dockerfile: Dockerfile.debug
+    volumes:
+      - ./api:/usr/src/app
+
+    ports:
+      - 8000:8000
+
+    environment:
+      - DB_HOST=mongo
+      - MONGO_PORT = 27017
+      - MONGO_DATABASE = lia
+
+    stop_signal: SIGINT
+    depends_on:
+      - mongo
+
+  client:
+    restart: always
+    build: 
+      context: ./lia
+      dockerfile: Dockerfile.debug
+    volumes:
+      - ./lia:/usr/src/app
+
+    ports:
+      - 5173:5173
+
+    depends_on:
+      - api

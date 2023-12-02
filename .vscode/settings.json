@@ -1,0 +1,9 @@
+{
+  "cssVariables.lookupFiles": [
+    "**/*.css",
+    "**/*.scss",
+    "**/*.sass",
+    "**/*.less",
+    "lia/node_modules/@mantine/core/esm/index.css"
+  ]
+}
