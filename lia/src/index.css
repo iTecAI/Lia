@@ -6,3 +6,12 @@ body {
   min-height: 100vh;
   overflow: hidden;
 }
+
+.mantine-Modal-root {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: inline-block;
+  width: 100vw;
+  height: 100vh;
+}

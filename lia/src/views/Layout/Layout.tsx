@@ -24,6 +24,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useApiConnection, useApiMethods, useUser } from "../../api";
 import "./layout.scss";
 import { useEffect } from "react";
+import { useModals } from "../../modals";
 
 export function Layout() {
     const [opened, { toggle }] = useDisclosure();
@@ -34,6 +35,7 @@ export function Layout() {
 
     const nav = useNavigate();
     const location = useLocation();
+    const { addList } = useModals();
 
     useEffect(() => {
         if (location.pathname !== "/login" && !user && connected) {
@@ -89,6 +91,7 @@ export function Layout() {
                             justify="space-between"
                             size="lg"
                             className="add-list-action"
+                            onClick={() => addList()}
                         >
                             {t("views.layout.create.button")}
                         </Button>

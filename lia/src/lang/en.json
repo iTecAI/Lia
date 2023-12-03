@@ -41,5 +41,27 @@
         "title": "Error:"
       }
     }
+  },
+  "modals": {
+    "addList": {
+      "title": "Add / Create List",
+      "section": {
+        "add": {
+          "input": {
+            "placeholder": "{{origin}}/join/...",
+            "label": "Invite Code / Link"
+          }
+        },
+        "create": {
+          "name": "List Name",
+          "stores": "Stores",
+          "submit": "Create List",
+          "errors": {
+            "name": "List name is required"
+          }
+        }
+      },
+      "or": "OR"
+    }
   }
 }
