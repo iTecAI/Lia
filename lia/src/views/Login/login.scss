@@ -1,0 +1,11 @@
+.login-base {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: inline-block;
+    width: 90%;
+    max-width: 384px;
+    height: fit-content;
+    background-color: var(--mantine-color-default) !important;
+    transform: translate(-50%, -50%);
+}

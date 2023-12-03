@@ -5,10 +5,10 @@ from pydantic import Field, BaseModel
 from typing import Union
 from hashlib import pbkdf2_hmac
 import os
+from .base import BaseDocument
 
 
-class Session(Document):
-    id: UUID = Field(default_factory=uuid4)
+class Session(BaseDocument):
     last_request: datetime
     user_id: Union[str, None]
 
@@ -44,8 +44,12 @@ class Password(BaseModel):
         return self.hashed == attempt
 
 
-class User(Document):
-    id: UUID = Field(default_factory=uuid4)
+class RedactedUser(BaseModel):
+    id: str
+    username: str
+
+
+class User(BaseDocument):
     username: str
     password: Password
 
@@ -53,7 +57,7 @@ class User(Document):
         name = "users"
 
     async def get_sessions(self) -> list[Session]:
-        return await Session.find(Session.user_id == self.id).to_list()
+        return await Session.find(Session.user_id == self.id_hex).to_list()
 
     @classmethod
     def create(cls, username: str, password: str) -> "User":
@@ -61,3 +65,7 @@ class User(Document):
             username=username,
             password=Password.create(password)
         )
+
+    @property
+    def redacted(self) -> RedactedUser:
+        return RedactedUser(id=self.id_hex, username=self.username)

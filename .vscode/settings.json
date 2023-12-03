@@ -6,5 +6,6 @@
     "**/*.less",
     "lia/node_modules/@mantine/core/esm/index.css"
   ],
-  "i18n-ally.localesPaths": "lia/src/lang"
+  "i18n-ally.localesPaths": "lia/src/lang",
+  "cssvar.ignore": ["**/node_modules/**", "**/data"]
 }

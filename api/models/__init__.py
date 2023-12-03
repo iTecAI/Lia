@@ -1,1 +1,1 @@
-from .auth import Session, User, Password
+from .auth import Session, User, Password, RedactedUser

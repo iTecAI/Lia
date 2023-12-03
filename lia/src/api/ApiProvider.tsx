@@ -1,5 +1,6 @@
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { ApiContext, ApiResponse, ApiSettings, Session, User } from "./types";
+import { generateMethods } from "./methods";
 
 export function ApiProvider({
     children,
@@ -41,7 +42,7 @@ export function ApiProvider({
                 : "";
             const result = await fetch(`/api${path}${params}`, {
                 method: options?.method ?? "GET",
-                body: options?.body ?? undefined,
+                body: options?.body ? JSON.stringify(options.body) : undefined,
             });
             if (result.ok) {
                 if (result.status === 204) {
@@ -80,6 +81,16 @@ export function ApiProvider({
     }
 
     useEffect(() => {
+        if (session?.user_id) {
+            request<User>("/auth/self").then((result) =>
+                result.success ? setUser(result.data) : setUser(null)
+            );
+        } else {
+            setUser(null);
+        }
+    }, [session]);
+
+    useEffect(() => {
         if (session) {
             request<ApiSettings>("/").then((result) =>
                 result.success ? setSettings(result.data) : setSettings(null)
@@ -97,7 +108,7 @@ export function ApiProvider({
                           connected: true,
                           session,
                           user,
-                          methods: {},
+                          methods: generateMethods(request, setUser),
                           settings,
                       }
                     : { connected: false }

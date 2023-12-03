@@ -1,0 +1,13 @@
+.app-root {
+    box-sizing: border-box;
+    overflow: hidden;
+    width: 100vw;
+
+    .app-content {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+}

@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import { generateMethods } from "./methods";
 
 export type ApiResponse<T = any> =
     | {
@@ -10,8 +11,6 @@ export type ApiResponse<T = any> =
           code: number;
           detail: string;
       };
-
-export type ApiMethods = {};
 
 export type Session = {
     id: string;
@@ -35,7 +34,7 @@ export type ApiContextType =
           connected: true;
           session: Session;
           user: User | null;
-          methods: ApiMethods;
+          methods: ReturnType<typeof generateMethods>;
           settings: ApiSettings;
       }
     | {

@@ -1,3 +1,39 @@
 {
-    "appName": "Lia"
+  "appName": "Lia",
+  "views": {
+    "login": {
+      "title": "Log In",
+      "username": {
+        "label": "Username",
+        "errors": {
+          "empty": "Username is required"
+        }
+      },
+      "password": {
+        "label": "Password",
+        "errors": {
+          "tooLong": "Password is too long",
+          "empty": "Password is required"
+        }
+      },
+      "actions": {
+        "createAccount": "Create Account",
+        "login": "Login"
+      },
+      "feedback": {
+        "success": "Logged in successfully!",
+        "error": "Incorrect username or password"
+      }
+    }
+  },
+  "common": {
+    "notifications": {
+      "success": {
+        "title": "Success!"
+      },
+      "error": {
+        "title": "Error:"
+      }
+    }
+  }
 }
