@@ -1,10 +1,9 @@
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional
 from litestar import Controller, get, post, Response
 from litestar.params import Parameter
 from litestar.exceptions import *
 from litestar.status_codes import *
 from litestar.datastructures import Cookie
-from litestar.di import Provide
 from models import Session, User, RedactedUser, guard_session, guard_logged_in, depends_user
 from datetime import datetime
 from pydantic import BaseModel
@@ -69,7 +68,3 @@ class AuthController(Controller):
         session.user_id = None
         await session.save()
         return None
-
-    @get("/self", guards=[guard_logged_in], dependencies={"user": Provide(depends_user)})
-    async def auth_self(self, user: User) -> Union[None, RedactedUser]:
-        return user.redacted

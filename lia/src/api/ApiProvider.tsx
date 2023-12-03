@@ -86,7 +86,7 @@ export function ApiProvider({
             return;
         }
         if (session?.user_id) {
-            request<User>("/auth/self").then((result) => {
+            request<User>("/user").then((result) => {
                 if (result.success) {
                     setUser(result.data);
                 } else {

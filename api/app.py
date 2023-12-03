@@ -9,6 +9,7 @@ from controllers import *
 from models import *
 from datetime import datetime
 
+
 @asynccontextmanager
 async def setup_context(app: Litestar) -> AsyncGenerator[None, None]:
     ctx: ApplicationContext = app.state["context"]
@@ -56,5 +57,5 @@ async def depends_session(context: ApplicationContext, request: Request) -> Unio
     else:
         return None
 
-app = Litestar(route_handlers=[get_test, AuthController], state=State(
+app = Litestar(route_handlers=[get_test, AuthController, ListController, UserController], state=State(
     {"context": ApplicationContext()}), lifespan=[setup_context], dependencies={"context": Provide(depends_context), "session": Provide(depends_session)}, exception_handlers={500: exception_logger})

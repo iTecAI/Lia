@@ -8,6 +8,7 @@ class GroceryList(BaseDocument):
     name: str
     owner_id: str
     included_stores: list[str]
+    type: Literal["grocery", "recipe"]
 
     class Settings:
         name = "grocery_lists"
@@ -36,6 +37,7 @@ class GroceryListItem(BaseDocument):
     price: Optional[float]
     location: Optional[str]
     linked_item: Optional[GroceryItem]
+    recipe: Optional[str]
 
     class Settings:
         name = "grocery_items"
@@ -45,3 +47,6 @@ class GroceryListItem(BaseDocument):
 
     async def get_alternatives(self) -> list["GroceryListItem"]:
         return await self.find(GroceryListItem.alternative.alternative_to == self.id_hex).to_list()
+
+    async def get_recipe(self) -> Optional[GroceryList]:
+        return await GroceryList.get(self.recipe) if self.recipe else None
