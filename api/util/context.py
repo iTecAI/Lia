@@ -1,6 +1,6 @@
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from os import getenv, environ
+from os import getenv
 from dataclasses import dataclass
 from models import *
 from open_groceries import OpenGrocery
@@ -15,6 +15,7 @@ class ApplicationOptions:
     allow_account_creation: bool
     store_location: str
     store_support: list[str]
+    session_expire: int
 
 
 class ApplicationContext:
@@ -39,7 +40,6 @@ class ApplicationContext:
         self.ready = True
 
     def load_options(self) -> ApplicationOptions:
-        print(environ)
         return ApplicationOptions(
             mongo_uri=getenv("MONGO_URI"),
             root_user=getenv("ROOT_USER", "root"),
@@ -48,5 +48,6 @@ class ApplicationContext:
             allow_account_creation=getenv(
                 "ALLOW_ACCOUNT_CREATION", "false") == "true",
             store_location=getenv("STORE_LOCATION", "Times Square"),
-            store_support=getenv("STORE_SUPPORT", "wegmans,costco").split(",")
+            store_support=getenv("STORE_SUPPORT", "wegmans,costco").split(","),
+            session_expire=int(getenv("SESSION_EXPIRE", "259200"))
         )

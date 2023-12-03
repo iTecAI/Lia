@@ -36,6 +36,10 @@ export function generateMethods(
                     return null;
                 }
             },
+            logout: async (): Promise<void> => {
+                await request<null>("/auth/logout", { method: "POST" });
+                setUser(null);
+            },
         },
     };
 }

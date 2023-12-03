@@ -2,10 +2,10 @@ from typing import Annotated, Optional, Union
 from litestar import Controller, get, post, Response
 from litestar.params import Parameter
 from litestar.exceptions import *
+from litestar.status_codes import *
 from litestar.datastructures import Cookie
-from models import Session, User, RedactedUser
-from util import ApplicationContext
-from uuid import UUID
+from litestar.di import Provide
+from models import Session, User, RedactedUser, guard_session, guard_logged_in, depends_user
 from datetime import datetime
 from pydantic import BaseModel
 
@@ -50,7 +50,7 @@ class AuthController(Controller):
                     cookies=[Cookie(key="lia-token", value=result.id)]
                 )
 
-    @post("/login")
+    @post("/login", guards=[guard_session])
     async def auth_login(self, session: Session, data: LoginModel) -> RedactedUser:
         result = await User.find_one(User.username == data.username)
         if not result:
@@ -64,9 +64,12 @@ class AuthController(Controller):
         await session.save()
         return result.redacted
 
-    @get("/self")
-    async def auth_self(self, session: Session) -> Union[None, RedactedUser]:
-        user = await session.get_user()
-        if user:
-            return user.redacted
+    @post("/logout", guards=[guard_logged_in], status_code=HTTP_204_NO_CONTENT)
+    async def auth_logout(self, session: Session) -> None:
+        session.user_id = None
+        await session.save()
         return None
+
+    @get("/self", guards=[guard_logged_in], dependencies={"user": Provide(depends_user)})
+    async def auth_self(self, user: User) -> Union[None, RedactedUser]:
+        return user.redacted

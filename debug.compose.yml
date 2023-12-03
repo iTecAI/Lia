@@ -26,6 +26,7 @@ services:
       - ALLOW_ACCOUNT_CREATION=true
       - STORE_LOCATION=Rochester Institute of Technology
       - STORE_SUPPORT=wegmans,costco
+      - SESSION_EXPIRE=259200
 
     stop_signal: SIGINT
     depends_on:

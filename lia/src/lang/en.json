@@ -24,6 +24,12 @@
         "success": "Logged in successfully!",
         "error": "Incorrect username or password"
       }
+    },
+    "layout": {
+      "create": {
+        "button": "Add List"
+      },
+      "logout": "Log Out"
     }
   },
   "common": {
