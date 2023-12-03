@@ -47,11 +47,13 @@ class Password(BaseModel):
 class RedactedUser(BaseModel):
     id: str
     username: str
+    admin: bool
 
 
 class User(BaseDocument):
     username: str
     password: Password
+    admin: bool
 
     class Settings:
         name = "users"
@@ -60,12 +62,13 @@ class User(BaseDocument):
         return await Session.find(Session.user_id == self.id_hex).to_list()
 
     @classmethod
-    def create(cls, username: str, password: str) -> "User":
+    def create(cls, username: str, password: str, admin=False) -> "User":
         return User(
             username=username,
-            password=Password.create(password)
+            password=Password.create(password),
+            admin=admin
         )
 
     @property
     def redacted(self) -> RedactedUser:
-        return RedactedUser(id=self.id_hex, username=self.username)
+        return RedactedUser(id=self.id_hex, username=self.username, admin=self.admin)

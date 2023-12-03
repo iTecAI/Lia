@@ -2,14 +2,26 @@ import { AppShell, Burger, Group, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChecklist } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { Outlet } from "react-router-dom";
-import { useUser } from "../../api";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useApiConnection, useUser } from "../../api";
 import "./layout.scss";
+import { useEffect } from "react";
 
 export function Layout() {
     const [opened, { toggle }] = useDisclosure();
     const { t } = useTranslation();
     const user = useUser();
+    const connected = useApiConnection();
+
+    const nav = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.pathname !== "/login" && !user && connected) {
+            nav("/login");
+        }
+    }, [location, user, connected]);
+
     return (
         <AppShell
             className="app-root"

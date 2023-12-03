@@ -33,7 +33,7 @@ class ApplicationContext:
             if root_user:
                 await User.delete()
             new_root = User.create(
-                self.options.root_user, self.options.root_password)
+                self.options.root_user, self.options.root_password, admin=True)
             await new_root.insert()
 
         self.ready = True

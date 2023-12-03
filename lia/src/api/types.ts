@@ -21,6 +21,7 @@ export type Session = {
 export type User = {
     id: string;
     username: string;
+    admin: boolean;
 };
 
 export type ApiSettings = {

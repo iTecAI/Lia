@@ -10,6 +10,7 @@ export function ApiProvider({
     const [session, setSession] = useState<Session | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [settings, setSettings] = useState<ApiSettings | null>(null);
+    const [firstLoad, setFirstLoad] = useState<boolean>(false);
 
     useEffect(() => {
         fetch("/api/auth/session", { method: "GET" }).then(async (response) => {
@@ -81,12 +82,21 @@ export function ApiProvider({
     }
 
     useEffect(() => {
+        if (!session) {
+            return;
+        }
         if (session?.user_id) {
-            request<User>("/auth/self").then((result) =>
-                result.success ? setUser(result.data) : setUser(null)
-            );
+            request<User>("/auth/self").then((result) => {
+                if (result.success) {
+                    setUser(result.data);
+                } else {
+                    setUser(null);
+                }
+                setFirstLoad(true);
+            });
         } else {
             setUser(null);
+            setFirstLoad(true);
         }
     }, [session]);
 
@@ -103,7 +113,7 @@ export function ApiProvider({
     return (
         <ApiContext.Provider
             value={
-                session && settings
+                session && settings && firstLoad
                     ? {
                           connected: true,
                           session,
