@@ -33,8 +33,6 @@ def exception_logger(req: Request, exc: Exception) -> Response:
     status_code = getattr(exc, "status_code", 500)
     detail = getattr(exc, "detail", "")
 
-    print(exc, exc.with_traceback())
-
     return Response(
         media_type=MediaType.TEXT,
         content=detail,

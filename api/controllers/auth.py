@@ -28,7 +28,6 @@ class AuthController(Controller):
     async def get_session(self, token: Annotated[Optional[str], Parameter(cookie="lia-token")] = None) -> Session:
         if token == None:
             new_session = Session(user_id=None, last_request=datetime.now())
-            print(new_session)
             await new_session.insert()
             return Response(
                 new_session,
@@ -40,7 +39,6 @@ class AuthController(Controller):
             if result == None:
                 new_session = Session(
                     user_id=None, last_request=datetime.now())
-                print(new_session)
                 await new_session.insert()
                 return Response(
                     new_session,
