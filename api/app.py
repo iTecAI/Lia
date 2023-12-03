@@ -1,7 +1,6 @@
 from litestar import Litestar, MediaType, Request, Response, get
 from litestar.di import Provide
 from litestar.datastructures.state import State
-from datetime import datetime
 from util import ApplicationContext
 from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
@@ -18,8 +17,12 @@ async def setup_context(app: Litestar) -> AsyncGenerator[None, None]:
 
 
 @get("/")
-async def get_test() -> datetime:
-    return datetime.now()
+async def get_test(context: ApplicationContext) -> dict:
+    return {
+        "store_location": context.options.store_location,
+        "store_support": context.options.store_support,
+        "allow_account_creation": context.options.allow_account_creation
+    }
 
 
 def exception_logger(req: Request, exc: Exception) -> Response:

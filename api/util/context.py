@@ -1,6 +1,6 @@
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from os import getenv
+from os import getenv, environ
 from dataclasses import dataclass
 from models import *
 from open_groceries import OpenGrocery
@@ -39,8 +39,9 @@ class ApplicationContext:
         self.ready = True
 
     def load_options(self) -> ApplicationOptions:
+        print(environ)
         return ApplicationOptions(
-            mongo_uri=getenv("MONGO_URI", "mongodb://mongo:27017"),
+            mongo_uri=getenv("MONGO_URI"),
             root_user=getenv("ROOT_USER", "root"),
             root_password=getenv("ROOT_PASSWORD", "root"),
             recreate_root=getenv("RECREATE_ROOT", "false") == "true",
