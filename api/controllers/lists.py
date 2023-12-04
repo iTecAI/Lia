@@ -11,7 +11,7 @@ from pydantic import BaseModel
 class ListCreationModel(BaseModel):
     name: str
     stores: list[str]
-    type: Literal["list", "recipe"]
+    type: Literal["grocery", "recipe"]
 
 
 class ListController(Controller):

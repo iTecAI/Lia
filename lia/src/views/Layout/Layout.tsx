@@ -57,7 +57,7 @@ export function Layout() {
                     const result = await api.list.create(
                         action.name,
                         action.stores,
-                        mode === "lists" ? "list" : "recipe"
+                        mode === "lists" ? "grocery" : "recipe"
                     );
                     if (result) {
                         setLists((current) => [

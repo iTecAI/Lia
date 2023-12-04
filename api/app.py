@@ -8,6 +8,7 @@ from collections.abc import AsyncGenerator
 from controllers import *
 from models import *
 from datetime import datetime
+from traceback import format_exc
 
 
 @asynccontextmanager
@@ -33,6 +34,8 @@ def exception_logger(req: Request, exc: Exception) -> Response:
     """Default handler for exceptions subclassed from HTTPException."""
     status_code = getattr(exc, "status_code", 500)
     detail = getattr(exc, "detail", "")
+
+    print(f"Encountered an error: {str(exc)}\n" + format_exc())
 
     return Response(
         media_type=MediaType.TEXT,

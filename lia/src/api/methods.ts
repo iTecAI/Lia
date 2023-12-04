@@ -47,7 +47,7 @@ export function generateMethods(
             create: async (
                 name: string,
                 stores: string[],
-                type: "list" | "recipe"
+                type: "grocery" | "recipe"
             ): Promise<GroceryList | null> => {
                 const result = await request<GroceryList>(
                     "/grocery/lists/create",
