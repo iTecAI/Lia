@@ -1,6 +1,7 @@
 import { ApiResponse } from ".";
 import { User } from "../types/auth";
 import { AccessReference, Favorite } from "../types/extra";
+import { GroceryItem } from "../types/grocery";
 import { GroceryList, ListAccessSpec } from "../types/list";
 
 export function generateMethods(
@@ -129,6 +130,27 @@ export function generateMethods(
                     } else {
                         return null;
                     }
+                }
+            },
+        },
+        groceries: {
+            search: async (
+                stores: string[],
+                searchTerm: string
+            ): Promise<GroceryItem[]> => {
+                const result = await request<GroceryItem[]>(
+                    "/groceries/search",
+                    {
+                        params: {
+                            stores: stores.join(",").toLowerCase(),
+                            term: searchTerm,
+                        },
+                    }
+                );
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return [];
                 }
             },
         },

@@ -86,6 +86,7 @@ app = Litestar(
         ListController,
         UserController,
         SelfListsController,
+        GroceryController,
     ],
     state=State({"context": ApplicationContext(), "events": Events(channels)}),
     lifespan=[setup_context],
