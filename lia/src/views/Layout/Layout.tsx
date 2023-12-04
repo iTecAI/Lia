@@ -89,7 +89,7 @@ export function Layout() {
     return (
         <AppShell
             className="app-root"
-            header={{ height: { base: 64, sm: 48 }, offset: true }}
+            header={{ height: 64, offset: true }}
             navbar={{
                 width: 300,
                 breakpoint: "sm",

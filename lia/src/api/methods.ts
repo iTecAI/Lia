@@ -62,6 +62,19 @@ export function generateMethods(
                     return null;
                 }
             },
+            get: async (
+                method: "id" | "alias",
+                ref: string
+            ): Promise<GroceryList | null> => {
+                const result = await request<GroceryList>(
+                    `/grocery/lists/${method}/${ref}`
+                );
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return null;
+                }
+            },
         },
         user: {
             self: async (): Promise<User | null> => {
