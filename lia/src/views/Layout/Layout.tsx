@@ -29,6 +29,7 @@ import { useModals } from "../../modals";
 import { AddListAction } from "../../modals/AddListModal";
 import { ListAccessSpec } from "../../types/list";
 import { ListCard } from "../../components/ListCard/ListCard";
+import { useEvent } from "../../util/events";
 
 export function Layout() {
     const [opened, { toggle }] = useDisclosure();
