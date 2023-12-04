@@ -72,6 +72,18 @@
         }
       },
       "or": "OR"
+    },
+    "addItem": {
+      "title": "New Item",
+      "fields": {
+        "name": {
+          "label": "Item Name"
+        },
+        "linked": {
+          "label": "Link Item",
+          "noResults": "No Results"
+        }
+      }
     }
   }
 }

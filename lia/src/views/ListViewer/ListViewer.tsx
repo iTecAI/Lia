@@ -26,6 +26,7 @@ import {
 } from "@tabler/icons-react";
 import { useLayoutContext } from "../Layout/ctx";
 import { useMediaQuery } from "@mantine/hooks";
+import { useModals } from "../../modals";
 
 export function ListViewer() {
     const { method, reference } = useParams() as {
@@ -43,6 +44,7 @@ export function ListViewer() {
         () => (isDesktop ? layout : "list"),
         [layout, isDesktop]
     );
+    const { addItem } = useModals();
 
     useEffect(() => {
         api &&
@@ -134,7 +136,12 @@ export function ListViewer() {
                 </Group>
             </Group>
             <Divider />
-            <ActionIcon size="xl" radius="xl" className="add-item-button">
+            <ActionIcon
+                size="xl"
+                radius="xl"
+                className="add-item-button"
+                onClick={() => addItem({ type: method, reference }, list)}
+            >
                 <IconPlus size={32} />
             </ActionIcon>
             <ScrollArea className="items-area" type="auto"></ScrollArea>
