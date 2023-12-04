@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useApiMethods } from "../../api";
 import { GroceryList } from "../../types/list";
-import { Box, Center, Loader } from "@mantine/core";
+import { Box, Loader } from "@mantine/core";
 import "./viewer.scss";
 
 export function ListViewer() {
@@ -26,7 +26,7 @@ export function ListViewer() {
         }
     }, [method, reference, api]);
 
-    return false ? (
+    return list ? (
         <></>
     ) : (
         <Box className="loader-wrapper">
