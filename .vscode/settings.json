@@ -1,11 +1,14 @@
 {
-  "cssVariables.lookupFiles": [
+  "i18n-ally.localesPaths": "lia/src/lang",
+  "cssvar.ignore": [
+    "**/node_modules/**",
+    "**/data"
+  ],
+  "cssvar.files": [
     "**/*.css",
     "**/*.scss",
     "**/*.sass",
     "**/*.less",
     "lia/node_modules/@mantine/core/esm/index.css"
-  ],
-  "i18n-ally.localesPaths": "lia/src/lang",
-  "cssvar.ignore": ["**/node_modules/**", "**/data"]
+  ]
 }

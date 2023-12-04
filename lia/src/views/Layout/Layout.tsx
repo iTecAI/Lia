@@ -14,7 +14,6 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import {
     IconChecklist,
-    IconListCheck,
     IconListDetails,
     IconLogout,
     IconPlus,
@@ -29,6 +28,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useModals } from "../../modals";
 import { AddListAction } from "../../modals/AddListModal";
 import { ListAccessSpec } from "../../types/list";
+import { ListCard } from "../../components/ListCard/ListCard";
 
 export function Layout() {
     const [opened, { toggle }] = useDisclosure();
@@ -150,7 +150,20 @@ export function Layout() {
                             ]}
                         />
                         <ScrollArea className="list-container" type="scroll">
-                            <Stack gap="sm" className="list-stack"></Stack>
+                            <Stack gap="sm" className="list-stack">
+                                {lists
+                                    .filter((v) =>
+                                        listDisplay === "lists"
+                                            ? v.data.type === "grocery"
+                                            : v.data.type === "recipe"
+                                    )
+                                    .map((v) => (
+                                        <ListCard
+                                            list={v}
+                                            key={v.access_reference}
+                                        />
+                                    ))}
+                            </Stack>
                         </ScrollArea>
                         <Button
                             leftSection={<IconPlus />}

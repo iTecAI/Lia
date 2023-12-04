@@ -1,0 +1,9 @@
+.list-card {
+    background-color: var(--mantine-color-default) !important;
+    transition: background-color 0.1s;
+    cursor: pointer;
+
+    &:hover {
+        background-color: var(--mantine-color-default-hover) !important;
+    }
+}
