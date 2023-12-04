@@ -3,6 +3,11 @@
     overflow: hidden;
     width: 100vw;
 
+    .header-title {
+        cursor: pointer;
+        user-select: none;
+    }
+
     .app-content {
         position: relative;
         overflow-x: hidden;

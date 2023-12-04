@@ -101,8 +101,14 @@ export function Layout() {
                             size="sm"
                         />
                     )}
-                    <IconChecklist size={24} />
-                    <Title order={4}>{t("appName")}</Title>
+                    <Group
+                        gap="sm"
+                        className="header-title"
+                        onClick={() => nav("/")}
+                    >
+                        <IconChecklist size={24} />
+                        <Title order={4}>{t("appName")}</Title>
+                    </Group>
                 </Group>
             </AppShell.Header>
             {user && (
@@ -234,7 +240,12 @@ export function Layout() {
                 </AppShell.Navbar>
             )}
             <AppShell.Main className="app-content">
-                <Outlet />
+                <Outlet
+                    context={{
+                        refreshLists: () =>
+                            api && api.user.lists().then(setLists),
+                    }}
+                />
             </AppShell.Main>
         </AppShell>
     );

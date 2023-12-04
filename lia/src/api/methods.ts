@@ -1,6 +1,6 @@
 import { ApiResponse } from ".";
 import { User } from "../types/auth";
-import { Favorite } from "../types/extra";
+import { AccessReference, Favorite } from "../types/extra";
 import { GroceryList, ListAccessSpec } from "../types/list";
 
 export function generateMethods(
@@ -102,14 +102,35 @@ export function generateMethods(
                     return [];
                 }
             },
-            toggleFavorite: async (list: ListAccessSpec): Promise<null | Favorite> => {
-                const result = await request<Favorite | null>(`/user/favorites/${list.access_type}/${list.access_reference}`, {method: "POST"});
-                if (result.success) {
-                    return result.data;
+            toggleFavorite: async (
+                list: ListAccessSpec | AccessReference
+            ): Promise<null | Favorite> => {
+                if (Object.keys(list).includes("data")) {
+                    const result = await request<Favorite | null>(
+                        `/user/favorites/${
+                            (list as ListAccessSpec).access_type
+                        }/${(list as ListAccessSpec).access_reference}`,
+                        { method: "POST" }
+                    );
+                    if (result.success) {
+                        return result.data;
+                    } else {
+                        return null;
+                    }
                 } else {
-                    return null;
+                    const result = await request<Favorite | null>(
+                        `/user/favorites/${(list as AccessReference).type}/${
+                            (list as AccessReference).reference
+                        }`,
+                        { method: "POST" }
+                    );
+                    if (result.success) {
+                        return result.data;
+                    } else {
+                        return null;
+                    }
                 }
-            }
+            },
         },
     };
 }
