@@ -82,8 +82,22 @@
         "linked": {
           "label": "Link Item",
           "noResults": "No Results"
+        },
+        "quantity": {
+          "label": "Quantity",
+          "unitPlaceholder": "Unit"
+        },
+        "categories": {
+          "label": "Categories"
+        },
+        "location": {
+          "label": "In-Store Location"
+        },
+        "price": {
+          "label": "Price"
         }
-      }
+      },
+      "submit": "Create"
     }
   }
 }

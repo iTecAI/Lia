@@ -5,6 +5,7 @@ import { useApiMethods } from "../../api";
 import { useTranslation } from "react-i18next";
 import {
     ActionIcon,
+    Button,
     Center,
     Collapse,
     Divider,
@@ -12,16 +13,24 @@ import {
     Group,
     Image,
     Loader,
+    NumberInput,
     Paper,
     Pill,
     Rating,
+    Select,
+    SimpleGrid,
     Stack,
+    TagsInput,
     Text,
     TextInput,
+    rem,
 } from "@mantine/core";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     IconCategoryFilled,
+    IconCheck,
+    IconCurrencyDollar,
+    IconHash,
     IconInfoCircle,
     IconLink,
     IconMapPin,
@@ -177,6 +186,20 @@ export function AddItemModal({
         };
     }, [api, nameRef.current, setLoading, setResults]);
 
+    const handleLinkedSelect = useCallback(
+        (item: GroceryItem | null) => {
+            form.setFieldValue("linked_item", item);
+            if (item) {
+                form.setValues({
+                    categories: item.categories,
+                    location: item.location,
+                    price: item.price,
+                });
+            }
+        },
+        [form]
+    );
+
     const renderedResults = useMemo(() => {
         return results
             .filter((v) => v.id !== form.values.linked_item?.id)
@@ -185,9 +208,7 @@ export function AddItemModal({
                     item={v}
                     key={v.id}
                     selected={form.values.linked_item?.id ?? null}
-                    onSelected={(item) =>
-                        form.setFieldValue("linked_item", item)
-                    }
+                    onSelected={handleLinkedSelect}
                 />
             ));
     }, [results, form.values.linked_item?.id]);
@@ -221,9 +242,7 @@ export function AddItemModal({
                                     selected={
                                         form.values.linked_item?.id ?? null
                                     }
-                                    onSelected={(item) =>
-                                        form.setFieldValue("linked_item", item)
-                                    }
+                                    onSelected={handleLinkedSelect}
                                 />
                                 <Divider />
                             </>
@@ -248,6 +267,77 @@ export function AddItemModal({
                         )}
                     </Stack>
                 </Fieldset>
+                <SimpleGrid
+                    cols={{ base: 1, md: 3 }}
+                    spacing="sm"
+                    verticalSpacing="sm"
+                >
+                    <NumberInput
+                        hideControls
+                        leftSection={<IconHash size={16} />}
+                        rightSection={
+                            <Select
+                                data={[
+                                    "kg",
+                                    "lb",
+                                    "liters",
+                                    "gallons",
+                                    "quarts",
+                                ]}
+                                clearable
+                                {...form.getInputProps("quantity.unit")}
+                                style={{
+                                    input: {
+                                        fontWeight: 500,
+                                        borderTopLeftRadius: "0 !important",
+                                        borderBottomLeftRadius: "0 !important",
+                                        width: rem(92),
+                                        marginRight: rem(-2),
+                                    },
+                                }}
+                                rightSectionWidth={28}
+                                placeholder={t(
+                                    "modals.addItem.fields.quantity.unitPlaceholder"
+                                )}
+                                className="quantity-input-unit-select"
+                            />
+                        }
+                        label={t("modals.addItem.fields.quantity.label")}
+                        rightSectionWidth={92}
+                        {...form.getInputProps("quantity.amount")}
+                    />
+
+                    <TextInput
+                        label={t("modals.addItem.fields.location.label")}
+                        leftSection={<IconMapPin size={16} />}
+                        value={form.values.location ?? ""}
+                        onChange={(event) =>
+                            form.setFieldValue(
+                                "location",
+                                event.target.value.length > 0
+                                    ? event.target.value
+                                    : null
+                            )
+                        }
+                    />
+                    <NumberInput
+                        leftSection={<IconCurrencyDollar size={16} />}
+                        label={t("modals.addItem.fields.price.label")}
+                        min={0}
+                        decimalScale={2}
+                        {...form.getInputProps("price")}
+                    />
+                </SimpleGrid>
+                <TagsInput
+                    label={t("modals.addItem.fields.categories.label")}
+                    leftSection={<IconCategoryFilled size={16} />}
+                    {...form.getInputProps("categories")}
+                />
+                <Group justify="right">
+                    <Button type="submit" leftSection={<IconCheck />}>
+                        {t("modals.addItem.submit")}
+                    </Button>
+                </Group>
             </Stack>
         </form>
     );

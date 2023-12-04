@@ -15,4 +15,8 @@ body {
   width: 100vw;
   height: 100vh;
   pointer-events: none;
+
+  .mantine-Modal-overlay {
+    pointer-events: all !important;
+  }
 }
