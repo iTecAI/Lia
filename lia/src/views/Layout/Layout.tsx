@@ -1,19 +1,21 @@
 import {
     ActionIcon,
     AppShell,
-    Box,
     Burger,
     Button,
     Divider,
     Group,
-    Skeleton,
-    Space,
+    ScrollArea,
+    SegmentedControl,
     Stack,
+    Text,
     Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
     IconChecklist,
+    IconListCheck,
+    IconListDetails,
     IconLogout,
     IconPlus,
     IconShieldCog,
@@ -23,8 +25,10 @@ import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useApiConnection, useApiMethods, useUser } from "../../api";
 import "./layout.scss";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useModals } from "../../modals";
+import { AddListAction } from "../../modals/AddListModal";
+import { ListAccessSpec } from "../../types/list";
 
 export function Layout() {
     const [opened, { toggle }] = useDisclosure();
@@ -36,12 +40,51 @@ export function Layout() {
     const nav = useNavigate();
     const location = useLocation();
     const { addList } = useModals();
+    const [lists, setLists] = useState<ListAccessSpec[]>([]);
 
     useEffect(() => {
         if (location.pathname !== "/login" && !user && connected) {
             nav("/login");
         }
     }, [location, user, connected]);
+
+    const addListCompletion = useCallback(
+        async (action: AddListAction, mode: "lists" | "recipes") => {
+            if (action.type === "add") {
+                console.log(action);
+            } else {
+                if (api) {
+                    const result = await api.list.create(
+                        action.name,
+                        action.stores,
+                        mode === "lists" ? "list" : "recipe"
+                    );
+                    if (result) {
+                        setLists((current) => [
+                            ...current,
+                            {
+                                data: result,
+                                access_type: "id",
+                                access_reference: result.id,
+                                favorited: false,
+                            },
+                        ]);
+                    }
+                }
+            }
+        },
+        [api]
+    );
+
+    useEffect(() => {
+        if (api) {
+            api.user.lists().then(setLists);
+        }
+    }, [api]);
+
+    const [listDisplay, setListDisplay] = useState<"lists" | "recipes">(
+        "lists"
+    );
 
     return (
         <AppShell
@@ -71,29 +114,54 @@ export function Layout() {
                 </Group>
             </AppShell.Header>
             {user && (
-                <AppShell.Navbar p="md" className="list-nav">
+                <AppShell.Navbar p="sm" className="list-nav">
                     <Stack gap="sm" h={"100%"}>
-                        <Box className="list-container" p="sm">
-                            <Stack gap="sm" className="list-stack">
-                                {Array(50)
-                                    .fill(0)
-                                    .map((_, i) => (
-                                        <Skeleton
-                                            key={i}
-                                            h={28}
-                                            animate={false}
-                                        />
-                                    ))}
-                            </Stack>
-                        </Box>
+                        <SegmentedControl
+                            value={listDisplay}
+                            onChange={setListDisplay as any}
+                            fullWidth
+                            data={[
+                                {
+                                    value: "lists",
+                                    label: (
+                                        <Group gap="sm" justify="space-between">
+                                            <IconChecklist size={20} />
+                                            <Text>
+                                                {t(
+                                                    "views.layout.lists.display.lists"
+                                                )}
+                                            </Text>
+                                        </Group>
+                                    ),
+                                },
+                                {
+                                    value: "recipes",
+                                    label: (
+                                        <Group gap="sm" justify="space-between">
+                                            <IconListDetails size={20} />
+                                            <Text>
+                                                {t(
+                                                    "views.layout.lists.display.recipes"
+                                                )}
+                                            </Text>
+                                        </Group>
+                                    ),
+                                },
+                            ]}
+                        />
+                        <ScrollArea className="list-container" type="scroll">
+                            <Stack gap="sm" className="list-stack"></Stack>
+                        </ScrollArea>
                         <Button
                             leftSection={<IconPlus />}
                             justify="space-between"
                             size="lg"
                             className="add-list-action"
-                            onClick={() => addList()}
+                            onClick={() =>
+                                addList(addListCompletion, listDisplay)
+                            }
                         >
-                            {t("views.layout.create.button")}
+                            {t(`views.layout.create.${listDisplay}`)}
                         </Button>
                         <Divider />
                         <Group gap="sm">

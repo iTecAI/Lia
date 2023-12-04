@@ -19,8 +19,24 @@ import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useApiSettings } from "../api";
 import { upperFirst } from "lodash";
+import { modals } from "@mantine/modals";
 
-export function AddListModal() {
+export type OnCompleteType = (
+    action: AddListAction,
+    mode: "lists" | "recipes"
+) => void;
+
+export type AddListAction =
+    | { type: "add"; invite: string }
+    | { type: "create"; name: string; stores: string[] };
+
+export function AddListModal({
+    onComplete,
+    mode,
+}: {
+    onComplete: OnCompleteType;
+    mode: "lists" | "recipes";
+}) {
     const { t } = useTranslation();
     const [joinLink, setJoinLink] = useInputState("");
     const settings = useApiSettings();
@@ -69,12 +85,25 @@ export function AddListModal() {
                     onChange={setJoinLink}
                     style={{ flexGrow: 1 }}
                 />
-                <ActionIcon size="lg" color="green" disabled={!validJoinLink}>
+                <ActionIcon
+                    size="lg"
+                    color="green"
+                    disabled={!validJoinLink}
+                    onClick={() => {
+                        onComplete({ type: "add", invite: joinLink }, mode);
+                        modals.closeAll();
+                    }}
+                >
                     <IconCheck />
                 </ActionIcon>
             </Group>
             <Divider label={t("modals.addList.or")} />
-            <form onSubmit={form.onSubmit((values) => console.log(values))}>
+            <form
+                onSubmit={form.onSubmit((values) => {
+                    onComplete({ type: "create", ...values }, mode);
+                    modals.closeAll();
+                })}
+            >
                 <Stack gap="sm">
                     <TextInput
                         label={t("modals.addList.section.create.name")}

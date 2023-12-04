@@ -1,3 +1,4 @@
+from typing import Literal
 from litestar import Controller, get, post
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
@@ -8,6 +9,7 @@ from pydantic import BaseModel
 class ListCreationModel(BaseModel):
     name: str
     stores: list[str]
+    type: Literal["list", "recipe"]
 
 
 class ListController(Controller):
@@ -21,7 +23,7 @@ class ListController(Controller):
             name=data.name,
             owner_id=user.id_hex,
             included_stores=data.stores,
-            type="grocery"
+            type=data.type
         )
         await new_list.save()
         return new_list

@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import { generateMethods } from "./methods";
+import { Session, User } from "../types/auth";
 
 export type ApiResponse<T = any> =
     | {
@@ -12,17 +13,7 @@ export type ApiResponse<T = any> =
           detail: string;
       };
 
-export type Session = {
-    id: string;
-    last_request: string;
-    user_id: string;
-};
 
-export type User = {
-    id: string;
-    username: string;
-    admin: boolean;
-};
 
 export type ApiSettings = {
     store_location: string;

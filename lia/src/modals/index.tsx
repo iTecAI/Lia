@@ -2,7 +2,7 @@ import { Group, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { IconPlus } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { AddListModal } from "./AddListModal";
+import { AddListModal, OnCompleteType } from "./AddListModal";
 import { memo } from "react";
 
 export function useModals() {
@@ -20,15 +20,16 @@ export function useModals() {
     );
 
     return {
-        addList: () => {
+        addList: (onComplete: OnCompleteType, mode: "lists" | "recipes") => {
             modals.open({
+                id: "addList",
                 title: (
                     <ModalHeader
                         icon={<IconPlus />}
-                        title={t("modals.addList.title")}
+                        title={t(`modals.addList.title.${mode}`)}
                     />
                 ),
-                children: <AddListModal />,
+                children: <AddListModal onComplete={onComplete} mode={mode} />,
             });
         },
     };

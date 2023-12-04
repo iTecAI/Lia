@@ -1,4 +1,6 @@
-import { ApiResponse, User } from ".";
+import { ApiResponse } from ".";
+import { User } from "../types/auth";
+import { GroceryList, ListAccessSpec } from "../types/list";
 
 export function generateMethods(
     request: <T>(
@@ -39,6 +41,44 @@ export function generateMethods(
             logout: async (): Promise<void> => {
                 await request<null>("/auth/logout", { method: "POST" });
                 setUser(null);
+            },
+        },
+        list: {
+            create: async (
+                name: string,
+                stores: string[],
+                type: "list" | "recipe"
+            ): Promise<GroceryList | null> => {
+                const result = await request<GroceryList>(
+                    "/grocery/lists/create",
+                    {
+                        method: "POST",
+                        body: { name, stores, type },
+                    }
+                );
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return null;
+                }
+            },
+        },
+        user: {
+            self: async (): Promise<User | null> => {
+                const result = await request<User>("/user");
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return null;
+                }
+            },
+            lists: async (): Promise<ListAccessSpec[]> => {
+                const result = await request<ListAccessSpec[]>("/user/lists");
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return [];
+                }
             },
         },
     };

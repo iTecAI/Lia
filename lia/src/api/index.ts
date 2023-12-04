@@ -1,17 +1,11 @@
 import { useContext } from "react";
 import { ApiProvider } from "./ApiProvider";
-import {
-    User,
-    Session,
-    ApiContextType,
-    ApiResponse,
-    ApiSettings,
-    ApiContext,
-} from "./types";
+import { ApiContextType, ApiResponse, ApiSettings, ApiContext } from "./types";
 import { generateMethods } from "./methods";
+import { Session, User } from "../types/auth";
 
 export { ApiProvider };
-export type { User, Session, ApiContextType, ApiResponse, ApiSettings };
+export type { ApiContextType, ApiResponse, ApiSettings };
 
 export function useApi(): ApiContextType {
     return useContext(ApiContext);

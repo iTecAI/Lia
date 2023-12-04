@@ -27,9 +27,16 @@
     },
     "layout": {
       "create": {
-        "button": "Add List"
+        "lists": "Add List",
+        "recipes": "Add Recipe"
       },
-      "logout": "Log Out"
+      "logout": "Log Out",
+      "lists": {
+        "display": {
+          "lists": "Lists",
+          "recipes": "Recipes"
+        }
+      }
     }
   },
   "common": {
@@ -44,7 +51,10 @@
   },
   "modals": {
     "addList": {
-      "title": "Add / Create List",
+      "title": {
+        "lists": "Join/Create List",
+        "recipes": "Join/Create Recipe"
+      },
       "section": {
         "add": {
           "input": {
@@ -53,11 +63,11 @@
           }
         },
         "create": {
-          "name": "List Name",
+          "name": "Name",
           "stores": "Stores",
-          "submit": "Create List",
+          "submit": "Create",
           "errors": {
-            "name": "List name is required"
+            "name": "Name is required"
           }
         }
       },

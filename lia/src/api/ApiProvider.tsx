@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
-import { ApiContext, ApiResponse, ApiSettings, Session, User } from "./types";
+import { ApiContext, ApiResponse, ApiSettings } from "./types";
 import { generateMethods } from "./methods";
+import { Session, User } from "../types/auth";
 
 export function ApiProvider({
     children,
