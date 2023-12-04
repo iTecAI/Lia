@@ -57,5 +57,5 @@ async def depends_session(context: ApplicationContext, request: Request) -> Unio
     else:
         return None
 
-app = Litestar(route_handlers=[get_test, AuthController, ListController, UserController], state=State(
+app = Litestar(route_handlers=[get_test, AuthController, ListController, UserController, SelfListsController], state=State(
     {"context": ApplicationContext()}), lifespan=[setup_context], dependencies={"context": Provide(depends_context), "session": Provide(depends_session)}, exception_handlers={500: exception_logger})
