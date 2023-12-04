@@ -8,6 +8,7 @@ import {
     Divider,
     Group,
     Loader,
+    ScrollArea,
     SegmentedControl,
     Stack,
     Text,
@@ -21,6 +22,7 @@ import {
     IconChecklist,
     IconLayoutList,
     IconLayoutGrid,
+    IconPlus,
 } from "@tabler/icons-react";
 import { useLayoutContext } from "../Layout/ctx";
 import { useMediaQuery } from "@mantine/hooks";
@@ -70,8 +72,8 @@ export function ListViewer() {
     }, [method, reference, api]);
 
     return list && api ? (
-        <Stack gap="sm">
-            <Group gap="sm" justify="space-between">
+        <Stack gap="sm" className="view-wrapper">
+            <Group gap="sm" justify="space-between" pl="md" pr="md">
                 <Group gap="sm">
                     <ActionIcon
                         radius="xs"
@@ -108,6 +110,7 @@ export function ListViewer() {
                                     label: (
                                         <IconLayoutList
                                             style={{ marginTop: "5px" }}
+                                            size={20}
                                         />
                                     ),
                                 },
@@ -116,18 +119,25 @@ export function ListViewer() {
                                     label: (
                                         <IconLayoutGrid
                                             style={{ marginTop: "5px" }}
+                                            size={20}
                                         />
                                     ),
                                 },
                             ]}
                         />
                     )}
-                    <ActionIcon size="lg" variant="subtle">
-                        <IconSettings />
-                    </ActionIcon>
+                    {method === "id" && (
+                        <ActionIcon size="xl" variant="subtle">
+                            <IconSettings />
+                        </ActionIcon>
+                    )}
                 </Group>
             </Group>
             <Divider />
+            <ActionIcon size="xl" radius="xl" className="add-item-button">
+                <IconPlus size={32} />
+            </ActionIcon>
+            <ScrollArea className="items-area" type="auto"></ScrollArea>
         </Stack>
     ) : (
         <Box className="loader-wrapper">

@@ -1,7 +1,7 @@
 .loader-wrapper {
     display: inline-block;
     width: 100%;
-    height: calc(100vh - 96px);
+    height: calc(100vh - 80px);
     position: relative;
 
     .loading-list {
@@ -9,5 +9,40 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+    }
+}
+
+.view-wrapper {
+    display: inline-block;
+    width: 100%;
+    height: calc(100vh - 80px);
+    position: relative;
+    overflow: hidden;
+
+    .add-item-button {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        display: inline-block;
+        width: 64px;
+        height: 64px;
+        z-index: 100;
+
+        @media screen and (max-width: 48em) {
+            width: 48px;
+            height: 48px;
+        }
+
+        svg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    .items-area {
+        flex-grow: 1;
+        position: relative;
     }
 }

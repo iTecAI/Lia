@@ -89,7 +89,7 @@ export function Layout() {
                     ? { mobile: !opened }
                     : { mobile: true, desktop: true },
             }}
-            padding={"md"}
+            padding={0}
         >
             <AppShell.Header>
                 <Group h="100%" px="md">
