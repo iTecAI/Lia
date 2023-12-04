@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from typing import Union
 from hashlib import pbkdf2_hmac
 import os
+
+from .extra import Favorite
 from .base import BaseDocument
 from litestar.connection import ASGIConnection
 from litestar.handlers.base import BaseRouteHandler
@@ -68,6 +70,9 @@ class User(BaseDocument):
 
     async def get_sessions(self) -> list[Session]:
         return await Session.find(Session.user_id == self.id_hex).to_list()
+    
+    async def get_favorites(self) -> list[Favorite]:
+        return await Favorite.find(Favorite.user_id == self.id_hex).to_list()
 
     @classmethod
     def create(cls, username: str, password: str, admin=False) -> "User":

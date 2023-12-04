@@ -27,7 +27,7 @@ class ApplicationContext:
 
     async def setup(self):
         client = AsyncIOMotorClient(self.options.mongo_uri)
-        await init_beanie(database=client.lia, document_models=[Session, User, GroceryListItem, GroceryList])
+        await init_beanie(database=client.lia, document_models=[Session, User, GroceryListItem, GroceryList, Favorite])
 
         root_user = await User.find_one(User.username == self.options.root_user)
         if not root_user or self.options.recreate_root:

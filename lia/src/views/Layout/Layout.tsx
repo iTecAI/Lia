@@ -60,15 +60,7 @@ export function Layout() {
                         mode === "lists" ? "grocery" : "recipe"
                     );
                     if (result) {
-                        setLists((current) => [
-                            ...current,
-                            {
-                                data: result,
-                                access_type: "id",
-                                access_reference: result.id,
-                                favorited: false,
-                            },
-                        ]);
+                        api.user.lists().then(setLists);
                     }
                 }
             }
@@ -152,15 +144,57 @@ export function Layout() {
                         <ScrollArea className="list-container" type="scroll">
                             <Stack gap="sm" className="list-stack">
                                 {lists
-                                    .filter((v) =>
-                                        listDisplay === "lists"
-                                            ? v.data.type === "grocery"
-                                            : v.data.type === "recipe"
+                                    .filter(
+                                        (v) =>
+                                            (listDisplay === "lists"
+                                                ? v.data.type === "grocery"
+                                                : v.data.type === "recipe") &&
+                                            v.favorited
                                     )
                                     .map((v) => (
                                         <ListCard
                                             list={v}
                                             key={v.access_reference}
+                                            refresh={() => {
+                                                api &&
+                                                    api.user
+                                                        .lists()
+                                                        .then(setLists);
+                                            }}
+                                        />
+                                    ))}
+                                {lists.filter(
+                                    (v) =>
+                                        (listDisplay === "lists"
+                                            ? v.data.type === "grocery"
+                                            : v.data.type === "recipe") &&
+                                        v.favorited
+                                ).length > 0 &&
+                                    lists.filter(
+                                        (v) =>
+                                            (listDisplay === "lists"
+                                                ? v.data.type === "grocery"
+                                                : v.data.type === "recipe") &&
+                                            !v.favorited
+                                    ).length > 0 && <Divider />}
+                                {lists
+                                    .filter(
+                                        (v) =>
+                                            (listDisplay === "lists"
+                                                ? v.data.type === "grocery"
+                                                : v.data.type === "recipe") &&
+                                            !v.favorited
+                                    )
+                                    .map((v) => (
+                                        <ListCard
+                                            list={v}
+                                            key={v.access_reference}
+                                            refresh={() => {
+                                                api &&
+                                                    api.user
+                                                        .lists()
+                                                        .then(setLists);
+                                            }}
                                         />
                                     ))}
                             </Stack>

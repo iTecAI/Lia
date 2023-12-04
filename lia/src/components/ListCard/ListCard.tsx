@@ -4,10 +4,12 @@ import { ActionIcon, Group, Paper, Text } from "@mantine/core";
 import "./listCard.scss";
 import { useState } from "react";
 import { IconStar, IconStarFilled } from "@tabler/icons-react";
+import { useApiMethods } from "../../api";
 
-export function ListCard({ list }: { list: ListAccessSpec }) {
+export function ListCard({ list, refresh }: { list: ListAccessSpec; refresh: () => void }) {
     const nav = useNavigate();
     const [favorite, setFavorite] = useState<boolean>(list.favorited);
+    const api = useApiMethods();
     const { method, reference } = useParams();
 
     return (
@@ -31,6 +33,7 @@ export function ListCard({ list }: { list: ListAccessSpec }) {
                     onClick={(event) => {
                         event.stopPropagation();
                         setFavorite(!favorite);
+                        api && api.user.toggleFavorite(list).then(refresh);
                     }}
                     variant="transparent"
                     color={favorite ? "yellow" : "white"}
