@@ -4,20 +4,36 @@ import { GroceryList, ListItem, RecipeList } from "../../types/list";
 import { useApiMethods } from "../../api";
 import { useTranslation } from "react-i18next";
 import {
+    ActionIcon,
     Center,
+    Collapse,
     Divider,
     Fieldset,
     Group,
+    Image,
     Loader,
     Paper,
+    Pill,
+    Rating,
     Stack,
     Text,
     TextInput,
 } from "@mantine/core";
-import { useEffect, useRef, useState } from "react";
-import { IconLink, IconMeat, IconX } from "@tabler/icons-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+    IconCategoryFilled,
+    IconInfoCircle,
+    IconLink,
+    IconMapPin,
+    IconMeat,
+    IconShoppingBag,
+    IconStarHalfFilled,
+    IconX,
+} from "@tabler/icons-react";
 import { GroceryItem } from "../../types/grocery";
 import "./modal.scss";
+import { capitalize } from "lodash";
+import { useDisclosure } from "@mantine/hooks";
 
 function GroceryItemResultCard({
     item,
@@ -25,16 +41,92 @@ function GroceryItemResultCard({
     onSelected,
 }: {
     item: GroceryItem;
-    selected: any;
-    onSelected: (item: GroceryItem) => void;
+    selected: string | number | null;
+    onSelected: (item: GroceryItem | null) => void;
 }) {
+    const [opened, { toggle }] = useDisclosure(false);
     return (
         <Paper
             p="sm"
             radius="sm"
-            className={"item-result" + (selected ? " selected" : "")}
+            className={
+                "item-result" + (selected === item.id ? " selected" : "")
+            }
             shadow="sm"
-        ></Paper>
+            onClick={() =>
+                selected === item.id ? onSelected(null) : onSelected(item)
+            }
+        >
+            <Stack gap="sm">
+                <Group gap="sm" align="center">
+                    {item.images[0] ? (
+                        <Image src={item.images[0]} radius="sm" h={48} w={48} />
+                    ) : (
+                        <IconShoppingBag size={32} />
+                    )}
+                    <Stack
+                        gap={2}
+                        justify="space-between"
+                        className="item-details-basic"
+                    >
+                        <Text>
+                            {item.name.split(" ").map(capitalize).join(" ")}
+                        </Text>
+                        <Text c="dimmed">
+                            {new Intl.NumberFormat("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                            }).format(item.price)}{" "}
+                            - {capitalize(item.type)}
+                        </Text>
+                    </Stack>
+                    <ActionIcon
+                        size="xl"
+                        variant="subtle"
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            toggle();
+                        }}
+                    >
+                        <IconInfoCircle size={24} />
+                    </ActionIcon>
+                </Group>
+                <Collapse in={opened}>
+                    <Stack gap="xs">
+                        <Group gap="xs" align="center" wrap="nowrap">
+                            <IconCategoryFilled size={20} />
+                            <Pill.Group>
+                                {item.categories.map((c, i) => (
+                                    <Pill key={i}>
+                                        {c.split(" ").map(capitalize).join(" ")}
+                                    </Pill>
+                                ))}
+                            </Pill.Group>
+                        </Group>
+                        {item.location && (
+                            <Group gap="xs" align="center" wrap="nowrap">
+                                <IconMapPin size={20} />
+                                {item.location
+                                    .split(" ")
+                                    .map(capitalize)
+                                    .join(" ")}
+                            </Group>
+                        )}
+                        {item.ratings && item.ratings.count > 0 && (
+                            <Group gap="xs" align="center" wrap="nowrap">
+                                <IconStarHalfFilled size={20} />
+                                <Rating
+                                    value={item.ratings.average}
+                                    fractions={2}
+                                    readOnly
+                                />
+                                ({item.ratings.count})
+                            </Group>
+                        )}
+                    </Stack>
+                </Collapse>
+            </Stack>
+        </Paper>
     );
 }
 
@@ -83,7 +175,22 @@ export function AddItemModal({
             nameRef.current &&
                 nameRef.current.removeEventListener("change", changeListener);
         };
-    });
+    }, [api, nameRef.current, setLoading, setResults]);
+
+    const renderedResults = useMemo(() => {
+        return results
+            .filter((v) => v.id !== form.values.linked_item?.id)
+            .map((v) => (
+                <GroceryItemResultCard
+                    item={v}
+                    key={v.id}
+                    selected={form.values.linked_item?.id ?? null}
+                    onSelected={(item) =>
+                        form.setFieldValue("linked_item", item)
+                    }
+                />
+            ));
+    }, [results, form.values.linked_item?.id]);
 
     return (
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
@@ -111,8 +218,12 @@ export function AddItemModal({
                                 <GroceryItemResultCard
                                     item={form.values.linked_item}
                                     key={form.values.linked_item.id}
-                                    selected={0}
-                                    onSelected={() => {}}
+                                    selected={
+                                        form.values.linked_item?.id ?? null
+                                    }
+                                    onSelected={(item) =>
+                                        form.setFieldValue("linked_item", item)
+                                    }
                                 />
                                 <Divider />
                             </>
@@ -122,18 +233,7 @@ export function AddItemModal({
                                 <Loader />
                             </Center>
                         ) : results.length > 0 ? (
-                            results
-                                .filter(
-                                    (v) => v.id !== form.values.linked_item?.id
-                                )
-                                .map((v) => (
-                                    <GroceryItemResultCard
-                                        item={v}
-                                        key={v.id}
-                                        selected={0}
-                                        onSelected={() => {}}
-                                    />
-                                ))
+                            renderedResults
                         ) : (
                             <Center pt="xl" pb="xl">
                                 <Group gap="sm" opacity={0.6} unselectable="on">

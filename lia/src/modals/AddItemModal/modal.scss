@@ -2,4 +2,32 @@
     max-height: 40vh;
     height: fit-content;
     overflow-y: auto;
+
+    .item-result {
+        background-color: var(--mantine-color-default) !important;
+        position: relative;
+        transition: background-color 0.1s;
+        cursor: pointer;
+        border: 1px solid #00000000;
+
+        &.selected {
+            border: 1px solid var(--mantine-primary-color-filled);
+        }
+
+        &:hover {
+            background-color: var(--mantine-color-default-hover) !important;
+        }
+
+        .item-details-basic {
+            width: calc(100% - 120px);
+            overflow-x: hidden;
+
+            p {
+                white-space: nowrap;
+                width: 100%;
+                text-overflow: ellipsis;
+                overflow-x: hidden;
+            }
+        }
+    }
 }

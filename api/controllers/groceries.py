@@ -12,5 +12,7 @@ class GroceryController(Controller):
     async def search_groceries(
         self, context: ApplicationContext, stores: str, term: str
     ) -> list[GroceryItem]:
-        results = context.groceries.search(term, include=stores.split(","))
+        results = context.groceries.search(
+            term, include=stores.split(","), ignore_errors=True
+        )
         return results

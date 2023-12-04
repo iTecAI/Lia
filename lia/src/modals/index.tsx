@@ -33,6 +33,7 @@ export function useModals() {
                     />
                 ),
                 children: <AddListModal onComplete={onComplete} mode={mode} />,
+                size: "xl",
             });
         },
         addItem: (access: AccessReference, list: GroceryList | RecipeList) => {
@@ -45,6 +46,7 @@ export function useModals() {
                     />
                 ),
                 children: <AddItemModal access={access} list={list} />,
+                size: "xl",
             });
         },
     };
