@@ -110,6 +110,31 @@
         "success": "Item added!",
         "error": "Failed to add item."
       }
+    },
+    "editItem": {
+      "title": "Item Information",
+      "fields": {
+        "name": {
+          "label": "Item Name",
+          "error": "This field is required."
+        },
+        "quantity": {
+          "unitPlaceholder": "Units",
+          "label": "Quantity"
+        },
+        "location": {
+          "label": "In-Store Location"
+        },
+        "price": {
+          "label": "Price"
+        },
+        "categories": {
+          "label": "Categories"
+        }
+      },
+      "actions": {
+        "addLinked": "Add Linked Item"
+      }
     }
   }
 }

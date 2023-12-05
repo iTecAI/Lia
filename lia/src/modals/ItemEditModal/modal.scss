@@ -1,0 +1,28 @@
+.linked-item-card {
+    background-color: var(--mantine-color-default) !important;
+
+    .linked-item-display {
+        @media screen and (max-width: 48em) {
+            & {
+                flex-wrap: wrap !important;
+            }
+
+            .item-img {
+                height: auto;
+                width: 100%;
+                border-radius: 4px;
+            }
+        }
+
+        .item-img {
+            height: auto;
+            max-width: 256px;
+            width: 25vw;
+            border-radius: 4px;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+    }
+}
