@@ -43,6 +43,8 @@ import { GroceryItem } from "../../types/grocery";
 import "./modal.scss";
 import { capitalize } from "lodash";
 import { useDisclosure } from "@mantine/hooks";
+import { useNotifications } from "../../util/notifications";
+import { modals } from "@mantine/modals";
 
 function GroceryItemResultCard({
     item,
@@ -147,7 +149,10 @@ export function AddItemModal({
     list: GroceryList | RecipeList;
 }) {
     const form = useForm<
-        Omit<ListItem, "id" | "list_id" | "alternative" | "checked" | "recipe">
+        Omit<
+            ListItem,
+            "id" | "list_id" | "alternative" | "checked" | "recipe" | "added_by"
+        >
     >({
         initialValues: {
             name: "",
@@ -157,15 +162,23 @@ export function AddItemModal({
             location: null,
             linked_item: null,
         },
+        validate: {
+            name: (values) =>
+                values.length > 0
+                    ? null
+                    : t("modals.addItem.fields.name.error"),
+        },
     });
     const api = useApiMethods();
     const { t } = useTranslation();
     const [results, setResults] = useState<GroceryItem[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const nameRef = useRef<HTMLInputElement | null>();
+    const { success, error } = useNotifications();
 
     useEffect(() => {
         function changeListener(event: Event) {
+            event.stopPropagation();
             if (api && (event.target as any).value.length > 0) {
                 setLoading(true);
                 api.groceries
@@ -194,6 +207,7 @@ export function AddItemModal({
                     categories: item.categories,
                     location: item.location,
                     price: item.price,
+                    name: item.name.split(" ").map(capitalize).join(" "),
                 });
             }
         },
@@ -214,9 +228,10 @@ export function AddItemModal({
     }, [results, form.values.linked_item?.id]);
 
     return (
-        <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <form>
             <Stack gap="sm">
                 <TextInput
+                    withAsterisk
                     ref={nameRef as any}
                     label={t("modals.addItem.fields.name.label")}
                     leftSection={<IconMeat size={16} />}
@@ -334,7 +349,37 @@ export function AddItemModal({
                     {...form.getInputProps("categories")}
                 />
                 <Group justify="right">
-                    <Button type="submit" leftSection={<IconCheck />}>
+                    <Button
+                        leftSection={<IconCheck />}
+                        onClick={() => {
+                            const valid = form.validate();
+                            if (!valid.hasErrors) {
+                                api &&
+                                    api.list
+                                        .addItem(
+                                            access.type,
+                                            access.reference,
+                                            form.values
+                                        )
+                                        .then((result) => {
+                                            if (result) {
+                                                success(
+                                                    t(
+                                                        "modals.addItem.feedback.success"
+                                                    )
+                                                );
+                                                modals.closeAll();
+                                            } else {
+                                                error(
+                                                    t(
+                                                        "modals.addItem.feedback.error"
+                                                    )
+                                                );
+                                            }
+                                        });
+                            }
+                        }}
+                    >
                         {t("modals.addItem.submit")}
                     </Button>
                 </Group>

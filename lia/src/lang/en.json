@@ -37,6 +37,11 @@
           "recipes": "Recipes"
         }
       }
+    },
+    "viewer": {
+      "item": {
+        "noLocation": "Unknown"
+      }
     }
   },
   "common": {
@@ -77,7 +82,8 @@
       "title": "New Item",
       "fields": {
         "name": {
-          "label": "Item Name"
+          "label": "Item Name",
+          "error": "This field is required."
         },
         "linked": {
           "label": "Link Item",
@@ -97,7 +103,11 @@
           "label": "Price"
         }
       },
-      "submit": "Create"
+      "submit": "Create",
+      "feedback": {
+        "success": "Item added!",
+        "error": "Failed to add item."
+      }
     }
   }
 }

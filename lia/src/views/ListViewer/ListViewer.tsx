@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useApiMethods } from "../../api";
-import { GroceryList, RecipeList } from "../../types/list";
+import { GroceryList, ListItem, RecipeList } from "../../types/list";
 import {
     ActionIcon,
     Box,
@@ -10,6 +10,7 @@ import {
     Loader,
     ScrollArea,
     SegmentedControl,
+    SimpleGrid,
     Stack,
     Text,
 } from "@mantine/core";
@@ -27,6 +28,8 @@ import {
 import { useLayoutContext } from "../Layout/ctx";
 import { useMediaQuery } from "@mantine/hooks";
 import { useModals } from "../../modals";
+import { useEvent } from "../../util/events";
+import { ListItemCard } from "./ItemCard";
 
 export function ListViewer() {
     const { method, reference } = useParams() as {
@@ -45,6 +48,24 @@ export function ListViewer() {
         [layout, isDesktop]
     );
     const { addItem } = useModals();
+    const [items, setItems] = useState<ListItem[]>([]);
+
+    const loadItems = useCallback(() => {
+        if (api) {
+            api.list.items(method, reference).then((result) => {
+                if (result) {
+                    setItems(result);
+                } else {
+                    setItems([]);
+                }
+            });
+        }
+    }, [api, method, reference]);
+
+    useEvent<{ action: string }>(
+        `list.${(list?.id ?? "null").replace(/-/g, "")}`,
+        loadItems
+    );
 
     useEffect(() => {
         api &&
@@ -72,6 +93,8 @@ export function ListViewer() {
             });
         }
     }, [method, reference, api]);
+
+    useEffect(loadItems, [method, reference, api]);
 
     return list && api ? (
         <Stack gap="sm" className="view-wrapper">
@@ -144,7 +167,24 @@ export function ListViewer() {
             >
                 <IconPlus size={32} />
             </ActionIcon>
-            <ScrollArea className="items-area" type="auto"></ScrollArea>
+            <ScrollArea className="items-area" type="auto">
+                <SimpleGrid
+                    cols={realLayout === "list" ? 1 : { base: 1, md: 2, lg: 3 }}
+                    spacing="sm"
+                    verticalSpacing="sm"
+                    pl="sm"
+                    pr="sm"
+                >
+                    {items.map((v) => (
+                        <ListItemCard
+                            key={v.id}
+                            list={list}
+                            item={v}
+                            access={{ type: method, reference }}
+                        />
+                    ))}
+                </SimpleGrid>
+            </ScrollArea>
         </Stack>
     ) : (
         <Box className="loader-wrapper">

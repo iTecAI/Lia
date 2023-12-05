@@ -44,5 +44,36 @@
     .items-area {
         flex-grow: 1;
         position: relative;
+
+        .item-list-card {
+            background-color: var(--mantine-color-default) !important;
+            transition: background-color 0.1s;
+            cursor: pointer;
+
+            &:hover {
+                background-color: var(--mantine-color-default-hover) !important;
+            }
+
+            .qt-control {
+                height: calc(100% + 2px);
+                &.increase {
+                    margin-right: 2px;
+                    border-top-left-radius: 0px;
+                    border-bottom-left-radius: 0px;
+                }
+
+                &.decrease {
+                    margin-left: -8px;
+                    border-top-right-radius: 0px;
+                    border-bottom-right-radius: 0px;
+                }
+            }
+
+            .item-quantity input {
+                text-align: center !important;
+                padding-left: 24px;
+                width: 110px !important;
+            }
+        }
     }
 }

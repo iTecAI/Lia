@@ -2,7 +2,7 @@ import { ApiResponse } from ".";
 import { User } from "../types/auth";
 import { AccessReference, Favorite } from "../types/extra";
 import { GroceryItem } from "../types/grocery";
-import { GroceryList, ListAccessSpec } from "../types/list";
+import { GroceryList, ListAccessSpec, ListItem } from "../types/list";
 
 export function generateMethods(
     request: <T>(
@@ -70,6 +70,45 @@ export function generateMethods(
             ): Promise<GroceryList | null> => {
                 const result = await request<GroceryList>(
                     `/grocery/lists/${method}/${ref}`
+                );
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return null;
+                }
+            },
+            items: async (
+                method: "id" | "alias",
+                ref: string
+            ): Promise<ListItem[]> => {
+                const result = await request<ListItem[]>(
+                    `/grocery/lists/${method}/${ref}/items`
+                );
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return [];
+                }
+            },
+            addItem: async (
+                method: "id" | "alias",
+                ref: string,
+                data: Omit<
+                    ListItem,
+                    | "id"
+                    | "list_id"
+                    | "alternative"
+                    | "checked"
+                    | "recipe"
+                    | "added_by"
+                >
+            ): Promise<GroceryItem | null> => {
+                const result = await request<GroceryItem>(
+                    `/grocery/lists/${method}/${ref}/item`,
+                    {
+                        method: "POST",
+                        body: data,
+                    }
                 );
                 if (result.success) {
                     return result.data;

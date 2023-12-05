@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal, Optional
 from litestar import Controller, get, post
 from litestar.connection import ASGIConnection
 from litestar.handlers.base import BaseRouteHandler
@@ -6,12 +6,22 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException, ValidationException
 from models import *
 from pydantic import BaseModel
+from util import Events
 
 
 class ListCreationModel(BaseModel):
     name: str
     stores: list[str]
     type: Literal["grocery", "recipe"]
+
+
+class ListItemCreationModel(BaseModel):
+    name: str
+    quantity: QuantitySpec
+    categories: list[str]
+    price: float
+    location: Optional[str]
+    linked_item: Any
 
 
 class ListController(Controller):
@@ -39,16 +49,16 @@ async def guard_list_access(
         raise RuntimeError
     method = connection.path_params.get("method", None)
     if not method:
-        raise ValidationException()
+        raise ValidationException(detail="Missing method")
     if method == "id":
         result = await GroceryList.get(connection.path_params.get("reference", "null"))
         if not result or result.owner_id != session.user_id:
             raise NotFoundException(
-                detail=f"List with id {id} does not exist, or you cannot access it by ID"
-            )
+                detail=f"List with id {id} does not exist, or you cannot access it by ID")
+        return None
     if method == "alias":
-        pass
-    raise ValidationException()
+        return None
+    raise ValidationException(detail="Invalid method")
 
 
 async def depends_list(method: str, reference: str) -> GroceryList:
@@ -68,5 +78,34 @@ class ListsController(Controller):
     }
 
     @get("/")
-    async def get_list_by_id(self, user: User, list_data: GroceryList) -> GroceryList:
+    async def get_list_by_id(self, list_data: GroceryList) -> GroceryList:
         return list_data
+
+    @get("/items")
+    async def get_items(self, list_data: GroceryList) -> list[GroceryListItem]:
+        return await list_data.get_items()
+
+    @post("/item")
+    async def add_list_item(
+        self,
+        user: User,
+        list_data: GroceryList,
+        data: ListItemCreationModel,
+        events: Events
+    ) -> GroceryListItem:
+        new_item = GroceryListItem(
+            name=data.name,
+            list_id=list_data.id_hex,
+            added_by=user.id_hex,
+            checked=False,
+            quantity=data.quantity,
+            alternative=None,
+            categories=data.categories,
+            price=data.price,
+            location=data.location if data.location and len(
+                data.location) > 0 else None,
+            linked_item=data.linked_item,
+            recipe=None)
+        await new_item.save()
+        await events.publish(f"list.{list_data.id_hex}", data={"action": "addItem"})
+        return new_item
