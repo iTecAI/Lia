@@ -21,7 +21,7 @@ class GroceryList(BaseDocument):
 
 class QuantitySpec(BaseModel):
     amount: float
-    unit: Union[None, str]
+    unit: Optional[str]
 
 
 class AlternativeSpec(BaseModel):

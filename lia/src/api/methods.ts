@@ -1,6 +1,6 @@
 import { ApiResponse } from ".";
 import { User } from "../types/auth";
-import { AccessReference, Favorite } from "../types/extra";
+import { AccessReference, DeepPartial, Favorite } from "../types/extra";
 import { GroceryItem } from "../types/grocery";
 import { GroceryList, ListAccessSpec, ListItem } from "../types/list";
 
@@ -105,6 +105,45 @@ export function generateMethods(
             ): Promise<GroceryItem | null> => {
                 const result = await request<GroceryItem>(
                     `/grocery/lists/${method}/${ref}/item`,
+                    {
+                        method: "POST",
+                        body: data,
+                    }
+                );
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return null;
+                }
+            },
+            setItemCheck: async (
+                method: "id" | "alias",
+                ref: string,
+                item: string,
+                checked: boolean
+            ): Promise<null> => {
+                await request<null>(
+                    `/grocery/lists/${method}/${ref}/item/${item.replace(
+                        /-/g,
+                        ""
+                    )}/checked`,
+                    {
+                        method: checked ? "POST" : "DELETE",
+                    }
+                );
+                return null;
+            },
+            updateItem: async (
+                method: "id" | "alias",
+                ref: string,
+                item: string,
+                data: DeepPartial<ListItem>
+            ): Promise<ListItem | null> => {
+                const result = await request<ListItem>(
+                    `/grocery/lists/${method}/${ref}/item/${item.replace(
+                        /-/g,
+                        ""
+                    )}/update`,
                     {
                         method: "POST",
                         body: data,

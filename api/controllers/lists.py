@@ -1,5 +1,5 @@
 from typing import Any, Literal, Optional
-from litestar import Controller, get, post
+from litestar import Controller, delete, get, post
 from litestar.connection import ASGIConnection
 from litestar.handlers.base import BaseRouteHandler
 from litestar.di import Provide
@@ -109,3 +109,36 @@ class ListsController(Controller):
         await new_item.save()
         await events.publish(f"list.{list_data.id_hex}", data={"action": "addItem"})
         return new_item
+
+    @post("/item/{item:str}/checked", status_code=204)
+    async def check_list_item(self, list_data: GroceryList, item: str, events: Events) -> None:
+        item_result = await GroceryListItem.get(item)
+        if not item_result:
+            raise NotFoundException(detail="Item not found.")
+
+        item_result.checked = True
+        await item_result.save()
+        await events.publish(f"list.{list_data.id_hex}", data={"action": "checkItem"})
+        return
+
+    @delete("/item/{item:str}/checked", status_code=204)
+    async def uncheck_list_item(self, list_data: GroceryList, item: str, events: Events) -> None:
+        item_result = await GroceryListItem.get(item)
+        if not item_result:
+            raise NotFoundException(detail="Item not found.")
+
+        item_result.checked = False
+        await item_result.save()
+        await events.publish(f"list.{list_data.id_hex}", data={"action": "uncheckItem"})
+        return
+
+    @post("/item/{item:str}/update")
+    async def update_item(self, list_data: GroceryList, item: str, events: Events, data: dict) -> GroceryListItem:
+        item_result = await GroceryListItem.get(item)
+        if not item_result:
+            raise NotFoundException(detail="Item not found.")
+
+        item_result.deep_update(data)
+        await item_result.save()
+        await events.publish(f"list.{list_data.id_hex}", data={"action": "updateItem"})
+        return item_result

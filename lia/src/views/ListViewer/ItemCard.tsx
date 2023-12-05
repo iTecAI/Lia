@@ -11,9 +11,8 @@ import {
 } from "@mantine/core";
 import { AccessReference } from "../../types/extra";
 import { GroceryList, ListItem, RecipeList } from "../../types/list";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-    IconCategoryFilled,
     IconCurrencyDollar,
     IconMapPin,
     IconMinus,
@@ -22,6 +21,7 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { isString } from "lodash";
+import { useApiMethods } from "../../api";
 
 export function ListItemCard({
     list,
@@ -35,6 +35,16 @@ export function ListItemCard({
     const { t } = useTranslation();
     const [checked, setChecked] = useState(item.checked);
     const [quantity, setQuantity] = useState(item.quantity.amount);
+    const api = useApiMethods();
+
+    useEffect(() => {
+        if (quantity !== item.quantity.amount && api) {
+            api.list.updateItem(access.type, access.reference, item.id, {
+                quantity: { amount: quantity },
+            });
+        }
+    }, [quantity, item.quantity.amount]);
+
     return (
         <Paper className="item-list-card" p="sm" radius="sm" shadow="sm">
             <Stack gap="sm">
@@ -69,7 +79,17 @@ export function ListItemCard({
                         color="green"
                         size="lg"
                         checked={checked}
-                        onChange={(event) => setChecked(event.target.checked)}
+                        onChange={(event) => {
+                            if (api) {
+                                api.list.setItemCheck(
+                                    access.type,
+                                    access.reference,
+                                    item.id,
+                                    event.target.checked
+                                );
+                                setChecked(event.target.checked);
+                            }
+                        }}
                         onClick={(e) => e.stopPropagation()}
                     />
                 </Group>
