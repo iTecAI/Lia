@@ -14,7 +14,9 @@ class GroceryList(BaseDocument):
         name = "grocery_lists"
 
     async def get_items(self) -> list["GroceryListItem"]:
-        return await GroceryListItem.find(GroceryListItem.list_id == self.id_hex).to_list()
+        return await GroceryListItem.find(
+            GroceryListItem.list_id == self.id_hex
+        ).to_list()
 
 
 class QuantitySpec(BaseModel):
@@ -30,6 +32,7 @@ class AlternativeSpec(BaseModel):
 class GroceryListItem(BaseDocument):
     name: str
     list_id: str
+    added_by: str
     checked: bool
     quantity: QuantitySpec
     alternative: Optional[AlternativeSpec]
@@ -46,7 +49,9 @@ class GroceryListItem(BaseDocument):
         return await GroceryList.get(self.list_id)
 
     async def get_alternatives(self) -> list["GroceryListItem"]:
-        return await self.find(GroceryListItem.alternative.alternative_to == self.id_hex).to_list()
+        return await self.find(
+            GroceryListItem.alternative.alternative_to == self.id_hex
+        ).to_list()
 
     async def get_recipe(self) -> Optional[GroceryList]:
         return await GroceryList.get(self.recipe) if self.recipe else None

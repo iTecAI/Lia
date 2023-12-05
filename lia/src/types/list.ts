@@ -37,6 +37,7 @@ export type ListItem = {
     id: string;
     name: string;
     list_id: string;
+    added_by: string;
     checked: boolean;
     quantity: ListItemQuantity;
     alternative: ListItemAlternative | null;
