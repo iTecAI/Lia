@@ -10,7 +10,6 @@ import {
     Loader,
     ScrollArea,
     SegmentedControl,
-    SimpleGrid,
     Stack,
     Text,
 } from "@mantine/core";
@@ -22,14 +21,17 @@ import {
     IconListDetails,
     IconChecklist,
     IconLayoutList,
-    IconLayoutGrid,
     IconPlus,
+    IconLayoutKanban,
+    IconSquare,
+    IconCheckbox,
 } from "@tabler/icons-react";
 import { useLayoutContext } from "../Layout/ctx";
 import { useMediaQuery } from "@mantine/hooks";
 import { useModals } from "../../modals";
 import { useEvent } from "../../util/events";
 import { ListItemCard } from "./ItemCard";
+import { useTranslation } from "react-i18next";
 
 export function ListViewer() {
     const { method, reference } = useParams() as {
@@ -49,6 +51,7 @@ export function ListViewer() {
     );
     const { addItem } = useModals();
     const [items, setItems] = useState<ListItem[]>([]);
+    const { t } = useTranslation();
 
     const loadItems = useCallback(() => {
         if (api) {
@@ -142,7 +145,7 @@ export function ListViewer() {
                                 {
                                     value: "grid",
                                     label: (
-                                        <IconLayoutGrid
+                                        <IconLayoutKanban
                                             style={{ marginTop: "5px" }}
                                             size={20}
                                         />
@@ -168,22 +171,90 @@ export function ListViewer() {
                 <IconPlus size={32} />
             </ActionIcon>
             <ScrollArea className="items-area" type="auto">
-                <SimpleGrid
-                    cols={realLayout === "list" ? 1 : { base: 1, md: 2, lg: 3 }}
-                    spacing="sm"
-                    verticalSpacing="sm"
-                    pl="sm"
-                    pr="sm"
-                >
-                    {items.map((v) => (
-                        <ListItemCard
-                            key={v.id}
-                            list={list}
-                            item={v}
-                            access={{ type: method, reference }}
-                        />
-                    ))}
-                </SimpleGrid>
+                {realLayout === "list" ? (
+                    <Stack gap="sm" pl="sm" pr="sm">
+                        {items
+                            .filter((i) => !i.checked)
+                            .map((v) => (
+                                <ListItemCard
+                                    key={v.id}
+                                    list={list}
+                                    item={v}
+                                    access={{ type: method, reference }}
+                                />
+                            ))}
+                        {items
+                            .filter((i) => i.checked)
+                            .map((v) => (
+                                <ListItemCard
+                                    key={v.id}
+                                    list={list}
+                                    item={v}
+                                    access={{ type: method, reference }}
+                                />
+                            ))}
+                    </Stack>
+                ) : (
+                    <Group
+                        gap="sm"
+                        pl="sm"
+                        pr="sm"
+                        style={{ minHeight: "calc(100vh - 156px)" }}
+                        align="start"
+                    >
+                        <Stack
+                            gap="sm"
+                            style={{
+                                width: "calc(50% - 13px)",
+                                height: "fit-content",
+                            }}
+                        >
+                            <Group gap="md" style={{ userSelect: "none" }}>
+                                <IconSquare size={32} />
+                                <Text size="lg">
+                                    {t("views.viewer.item.unchecked")}
+                                </Text>
+                            </Group>
+                            <Divider />
+                            {items
+                                .filter((i) => !i.checked)
+                                .map((v) => (
+                                    <ListItemCard
+                                        key={v.id}
+                                        list={list}
+                                        item={v}
+                                        access={{ type: method, reference }}
+                                    />
+                                ))}
+                        </Stack>
+                        <Divider orientation="vertical" />
+                        <Stack
+                            gap="sm"
+                            style={{
+                                width: "calc(50% - 13px)",
+                                height: "fit-content",
+                            }}
+                        >
+                            <Group gap="md" style={{ userSelect: "none" }}>
+                                <IconCheckbox size={32} />
+                                <Text size="lg">
+                                    {t("views.viewer.item.checked")}
+                                </Text>
+                            </Group>
+                            <Divider />
+                            {items
+                                .filter((i) => i.checked)
+                                .map((v) => (
+                                    <ListItemCard
+                                        key={v.id}
+                                        list={list}
+                                        item={v}
+                                        access={{ type: method, reference }}
+                                    />
+                                ))}
+                        </Stack>
+                    </Group>
+                )}
             </ScrollArea>
         </Stack>
     ) : (

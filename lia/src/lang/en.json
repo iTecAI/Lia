@@ -40,7 +40,9 @@
     },
     "viewer": {
       "item": {
-        "noLocation": "Unknown"
+        "noLocation": "Unknown",
+        "unchecked": "Unchecked",
+        "checked": "Checked"
       }
     }
   },
