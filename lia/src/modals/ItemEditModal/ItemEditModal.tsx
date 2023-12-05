@@ -37,9 +37,9 @@ import {
 import { useTranslation } from "react-i18next";
 import "./modal.scss";
 import { capitalize } from "lodash";
-import { useMediaQuery } from "@mantine/hooks";
+import { useDebouncedState, useDidUpdate, useMediaQuery } from "@mantine/hooks";
 import { useApiMethods } from "../../api";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function ItemEditModal({
     item,
@@ -47,19 +47,27 @@ export function ItemEditModal({
     list,
     open,
     setOpen,
+    denyQuantityUpdate,
 }: {
     item: ListItem;
     access: AccessReference;
     list: GroceryList | RecipeList;
     open: boolean;
     setOpen: (open: boolean) => void;
+    denyQuantityUpdate: () => void;
 }) {
     const { t } = useTranslation();
     const isDesktop = useMediaQuery("(min-width: 48em)", true);
     const form = useForm<
         Omit<
             ListItem,
-            "id" | "list_id" | "alternative" | "checked" | "recipe" | "added_by"
+            | "id"
+            | "list_id"
+            | "alternative"
+            | "checked"
+            | "recipe"
+            | "added_by"
+            | "linked_item"
         >
     >({
         initialValues: {
@@ -68,7 +76,6 @@ export function ItemEditModal({
             categories: item.categories,
             price: item.price,
             location: item.location,
-            linked_item: item.linked_item,
         },
         validate: {
             name: (values) =>
@@ -79,6 +86,55 @@ export function ItemEditModal({
     });
 
     const api = useApiMethods();
+    const [debouncedVals, setDebouncedVals] = useDebouncedState<
+        Omit<
+            ListItem,
+            | "id"
+            | "list_id"
+            | "alternative"
+            | "checked"
+            | "recipe"
+            | "added_by"
+            | "linked_item"
+        >
+    >(
+        {
+            name: item.name,
+            quantity: item.quantity,
+            categories: item.categories,
+            price: item.price,
+            location: item.location,
+        },
+        250
+    );
+
+    useDidUpdate(() => {
+        setDebouncedVals(form.values);
+    }, [
+        form.values.categories,
+        form.values.location,
+        form.values.name,
+        form.values.price,
+        form.values.quantity.amount,
+        form.values.quantity.unit,
+    ]);
+
+    useDidUpdate(() => {
+        denyQuantityUpdate();
+        api?.list.updateItem(
+            access.type,
+            access.reference,
+            item.id,
+            debouncedVals
+        );
+    }, [
+        debouncedVals.categories,
+        debouncedVals.location,
+        debouncedVals.name,
+        debouncedVals.price,
+        debouncedVals.quantity.amount,
+        debouncedVals.quantity.unit,
+    ]);
 
     const removeLinkedItem = useCallback(() => {
         if (api) {

@@ -37,9 +37,14 @@ export function ListItemCard({
     const [quantity, setQuantity] = useState(item.quantity.amount);
     const api = useApiMethods();
     const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
+    const [denyQtUpdate, setDenyQtUpdate] = useState(false);
 
     useEffect(() => {
         if (quantity !== item.quantity.amount && api) {
+            if (denyQtUpdate) {
+                setDenyQtUpdate(false);
+                return;
+            }
             api.list.updateItem(access.type, access.reference, item.id, {
                 quantity: { amount: quantity },
             });
@@ -164,6 +169,7 @@ export function ListItemCard({
                 list={list}
                 open={detailsOpen}
                 setOpen={setDetailsOpen}
+                denyQuantityUpdate={() => setDenyQtUpdate(true)}
             />
         </>
     );
