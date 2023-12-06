@@ -19,7 +19,7 @@ class BaseDocument(Document):
                 source: dict) -> Union[BaseModel, Document]:
         for k, v in source.items():
             if hasattr(destination, k):
-                if type(v) == dict:
+                if type(getattr(destination, k)) == dict:
                     setattr(
                         destination, k, BaseDocument._update(
                             getattr(destination, k), v))

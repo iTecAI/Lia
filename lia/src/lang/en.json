@@ -140,7 +140,9 @@
         "title": "Switch Linked Item",
         "search": {
           "placeholder": "Search..."
-        }
+        },
+        "noResults": "No Results",
+        "label": "Results"
       }
     }
   }

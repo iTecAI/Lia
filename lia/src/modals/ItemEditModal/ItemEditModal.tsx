@@ -5,8 +5,11 @@ import {
     ActionIcon,
     Button,
     Center,
+    Divider,
+    Fieldset,
     Group,
     Image,
+    Loader,
     Modal,
     NumberInput,
     Paper,
@@ -27,6 +30,7 @@ import {
     IconEdit,
     IconHash,
     IconInfoCircle,
+    IconLink,
     IconLinkOff,
     IconLinkPlus,
     IconMapPin,
@@ -35,25 +39,31 @@ import {
     IconShoppingBag,
     IconStarHalfFilled,
     IconTrashFilled,
+    IconX,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import "./modal.scss";
 import { capitalize } from "lodash";
 import { useDebouncedState, useDidUpdate, useMediaQuery } from "@mantine/hooks";
 import { useApiMethods } from "../../api";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { GroceryItem } from "../../types/grocery";
+import { GroceryItemResultCard } from "../AddItemModal/AddItemModal";
 
 function SwitchLinkedItemModal({
     open,
     submit,
+    list,
 }: {
     open: boolean;
     submit: (selection: null | GroceryItem) => void;
+    list: GroceryList | RecipeList;
 }) {
     const [results, setResults] = useState<GroceryItem[]>([]);
     const [search, setSearch] = useState("");
+    const [loading, setLoading] = useState(false);
     const { t } = useTranslation();
+    const api = useApiMethods();
 
     useEffect(() => {
         if (open) {
@@ -61,6 +71,33 @@ function SwitchLinkedItemModal({
             setSearch("");
         }
     }, [open]);
+
+    const renderedResults = useMemo(() => {
+        return results.map((v) => (
+            <GroceryItemResultCard
+                item={v}
+                key={v.id}
+                selected={null}
+                onSelected={(selection) => {
+                    submit(selection);
+                }}
+            />
+        ));
+    }, [results]);
+
+    const searchGroceries = useCallback(() => {
+        if (api && search.length > 0) {
+            setLoading(true);
+            api.groceries
+                .search(list.included_stores, search)
+                .then((result) => {
+                    setResults(result);
+                    setLoading(false);
+                });
+        } else {
+            setResults([]);
+        }
+    }, [api, search, list.included_stores]);
 
     return (
         <Modal
@@ -74,22 +111,59 @@ function SwitchLinkedItemModal({
             }
             size="xl"
         >
-            <form onSubmit={() => console.log(search)}>
-                <Group gap="sm" align="end">
-                    <TextInput
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                        leftSection={<IconSearch size={16} />}
-                        placeholder={t(
-                            "modals.editItem.switchLink.search.placeholder"
+            <Stack gap="sm">
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        searchGroceries();
+                    }}
+                >
+                    <Group gap="sm" align="end">
+                        <TextInput
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                            leftSection={<IconSearch size={16} />}
+                            placeholder={t(
+                                "modals.editItem.switchLink.search.placeholder"
+                            )}
+                            style={{ flexGrow: 1 }}
+                        />
+                        <ActionIcon size="lg" onClick={searchGroceries}>
+                            <IconSearch size={16} />
+                        </ActionIcon>
+                    </Group>
+                </form>
+                <Fieldset
+                    legend={
+                        <Group gap="xs">
+                            <IconLink size={16} />
+                            <span>{t("modals.editItem.switchLink.label")}</span>
+                        </Group>
+                    }
+                    className="result-list"
+                >
+                    <Stack gap="sm">
+                        {loading ? (
+                            <Center pt="xl" pb="xl">
+                                <Loader />
+                            </Center>
+                        ) : results.length > 0 ? (
+                            renderedResults
+                        ) : (
+                            <Center pt="xl" pb="xl">
+                                <Group gap="sm" opacity={0.6} unselectable="on">
+                                    <IconX size={32} />
+                                    <Text size="lg">
+                                        {t(
+                                            "modals.editItem.switchLink.noResults"
+                                        )}
+                                    </Text>
+                                </Group>
+                            </Center>
                         )}
-                        style={{ flexGrow: 1 }}
-                    />
-                    <ActionIcon size="lg">
-                        <IconSearch size={16} />
-                    </ActionIcon>
-                </Group>
-            </form>
+                    </Stack>
+                </Fieldset>
+            </Stack>
         </Modal>
     );
 }
@@ -97,6 +171,7 @@ function SwitchLinkedItemModal({
 export function ItemEditModal({
     item,
     access,
+    list,
     open,
     setOpen,
     denyQuantityUpdate,
@@ -435,6 +510,7 @@ export function ItemEditModal({
                                 <Button
                                     size="lg"
                                     leftSection={<IconLinkPlus size={24} />}
+                                    onClick={() => setSwitching(true)}
                                 >
                                     {t("modals.editItem.actions.addLinked")}
                                 </Button>
@@ -463,7 +539,19 @@ export function ItemEditModal({
             </Stack>
             <SwitchLinkedItemModal
                 open={switching}
-                submit={(selection) => setSwitching(false)}
+                submit={(selection) => {
+                    if (selection && api) {
+                        api.list.updateItem(
+                            access.type,
+                            access.reference,
+                            item.id,
+                            { linked_item: selection }
+                        );
+                    }
+
+                    setSwitching(false);
+                }}
+                list={list}
             />
         </Modal>
     );
