@@ -135,6 +135,12 @@
       "actions": {
         "addLinked": "Add Linked Item",
         "removeItem": "Remove Item"
+      },
+      "switchLink": {
+        "title": "Switch Linked Item",
+        "search": {
+          "placeholder": "Search..."
+        }
       }
     }
   }

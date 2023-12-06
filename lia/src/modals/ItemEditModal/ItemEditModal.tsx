@@ -31,6 +31,7 @@ import {
     IconLinkPlus,
     IconMapPin,
     IconMeat,
+    IconSearch,
     IconShoppingBag,
     IconStarHalfFilled,
     IconTrashFilled,
@@ -40,13 +41,62 @@ import "./modal.scss";
 import { capitalize } from "lodash";
 import { useDebouncedState, useDidUpdate, useMediaQuery } from "@mantine/hooks";
 import { useApiMethods } from "../../api";
-import { useCallback } from "react";
-import { modals } from "@mantine/modals";
+import { useCallback, useEffect, useState } from "react";
+import { GroceryItem } from "../../types/grocery";
+
+function SwitchLinkedItemModal({
+    open,
+    submit,
+}: {
+    open: boolean;
+    submit: (selection: null | GroceryItem) => void;
+}) {
+    const [results, setResults] = useState<GroceryItem[]>([]);
+    const [search, setSearch] = useState("");
+    const { t } = useTranslation();
+
+    useEffect(() => {
+        if (open) {
+            setResults([]);
+            setSearch("");
+        }
+    }, [open]);
+
+    return (
+        <Modal
+            opened={open}
+            onClose={() => submit(null)}
+            title={
+                <Group gap="sm" justify="space-between" style={{ flexGrow: 2 }}>
+                    <IconEdit />
+                    <Text>{t("modals.editItem.switchLink.title")}</Text>
+                </Group>
+            }
+            size="xl"
+        >
+            <form onSubmit={() => console.log(search)}>
+                <Group gap="sm" align="end">
+                    <TextInput
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        leftSection={<IconSearch size={16} />}
+                        placeholder={t(
+                            "modals.editItem.switchLink.search.placeholder"
+                        )}
+                        style={{ flexGrow: 1 }}
+                    />
+                    <ActionIcon size="lg">
+                        <IconSearch size={16} />
+                    </ActionIcon>
+                </Group>
+            </form>
+        </Modal>
+    );
+}
 
 export function ItemEditModal({
     item,
     access,
-    list,
     open,
     setOpen,
     denyQuantityUpdate,
@@ -157,6 +207,8 @@ export function ItemEditModal({
             });
         }
     }, [item.name, item.quantity, item.categories, item.price, item.location]);
+
+    const [switching, setSwitching] = useState(false);
 
     return (
         <Modal
@@ -278,7 +330,11 @@ export function ItemEditModal({
                                     >
                                         <IconLinkOff />
                                     </ActionIcon>
-                                    <ActionIcon size="lg" variant="subtle">
+                                    <ActionIcon
+                                        size="lg"
+                                        variant="subtle"
+                                        onClick={() => setSwitching(true)}
+                                    >
                                         <IconEdit />
                                     </ActionIcon>
                                 </Stack>
@@ -288,7 +344,7 @@ export function ItemEditModal({
                                 align="start"
                                 className="item-details"
                             >
-                                <Group gap="sm">
+                                <Group gap="sm" wrap="nowrap">
                                     <IconShoppingBag size={24} />
                                     <Text>
                                         {item.linked_item.name
@@ -297,7 +353,7 @@ export function ItemEditModal({
                                             .join(" ")}
                                     </Text>
                                 </Group>
-                                <Group gap="sm">
+                                <Group gap="sm" wrap="nowrap">
                                     <IconBuildingStore size={24} />
                                     <Text>
                                         {item.linked_item.type
@@ -307,7 +363,7 @@ export function ItemEditModal({
                                     </Text>
                                 </Group>
                                 {item.linked_item.location && (
-                                    <Group gap="sm">
+                                    <Group gap="sm" wrap="nowrap">
                                         <IconMapPin size={24} />
                                         <Text>
                                             {item.linked_item.location
@@ -317,7 +373,7 @@ export function ItemEditModal({
                                         </Text>
                                     </Group>
                                 )}
-                                <Group gap="sm">
+                                <Group gap="sm" wrap="nowrap">
                                     <IconCurrencyDollar size={24} />
                                     <Text>
                                         {item.linked_item.price
@@ -363,7 +419,11 @@ export function ItemEditModal({
                                     >
                                         <IconLinkOff />
                                     </ActionIcon>
-                                    <ActionIcon size="lg" variant="subtle">
+                                    <ActionIcon
+                                        size="lg"
+                                        variant="subtle"
+                                        onClick={() => setSwitching(true)}
+                                    >
                                         <IconEdit />
                                     </ActionIcon>
                                 </Stack>
@@ -401,6 +461,10 @@ export function ItemEditModal({
                     </Button>
                 </Group>
             </Stack>
+            <SwitchLinkedItemModal
+                open={switching}
+                submit={(selection) => setSwitching(false)}
+            />
         </Modal>
     );
 }

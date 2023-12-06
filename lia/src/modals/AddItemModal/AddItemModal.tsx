@@ -46,7 +46,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useNotifications } from "../../util/notifications";
 import { modals } from "@mantine/modals";
 
-function GroceryItemResultCard({
+export function GroceryItemResultCard({
     item,
     selected,
     onSelected,
