@@ -98,7 +98,7 @@ export function Layout() {
         >
             <AppShell.Header>
                 <Group gap="sm" justify="space-between" h="100%" px="md">
-                    <Group h="100%" px="md">
+                    <Group h="100%">
                         {user && (
                             <Burger
                                 opened={opened}
