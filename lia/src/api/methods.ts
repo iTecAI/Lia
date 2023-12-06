@@ -44,6 +44,28 @@ export function generateMethods(
                 await request<null>("/auth/logout", { method: "POST" });
                 setUser(null);
             },
+            createAccount: async (
+                username: string,
+                password: string,
+                invite?: string
+            ): Promise<User | null> => {
+                if (invite) {
+                    // TODO: Add invite func here
+                    return null;
+                } else {
+                    const result = await request<User>("/auth/create", {
+                        method: "POST",
+                        body: { username, password },
+                    });
+                    if (result.success) {
+                        setUser(result.data);
+                        return result.data;
+                    } else {
+                        setUser(null);
+                        return null;
+                    }
+                }
+            },
         },
         list: {
             create: async (

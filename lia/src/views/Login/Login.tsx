@@ -86,7 +86,10 @@ export function LoginView() {
                         }
                     >
                         {settings?.allow_account_creation && (
-                            <Button variant="subtle">
+                            <Button
+                                variant="subtle"
+                                onClick={() => nav("/create_account")}
+                            >
                                 {t("views.login.actions.createAccount")}
                             </Button>
                         )}

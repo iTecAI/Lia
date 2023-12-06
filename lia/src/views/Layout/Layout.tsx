@@ -48,7 +48,11 @@ export function Layout() {
     const [lists, setLists] = useState<ListAccessSpec[]>([]);
 
     useEffect(() => {
-        if (location.pathname !== "/login" && !user && connected) {
+        if (
+            !["/login", "/create_account"].includes(location.pathname) &&
+            !user &&
+            connected
+        ) {
             nav("/login");
         }
     }, [location, user, connected]);

@@ -4,6 +4,7 @@ from litestar.params import Parameter
 from litestar.exceptions import *
 from litestar.status_codes import *
 from litestar.datastructures import Cookie
+from util import ApplicationContext
 from models import Session, User, RedactedUser, guard_session, guard_logged_in, depends_user
 from datetime import datetime
 from pydantic import BaseModel
@@ -68,3 +69,21 @@ class AuthController(Controller):
         session.user_id = None
         await session.save()
         return None
+
+    @post("/create", guards=[guard_session])
+    async def create_account(self, session: Session, data: LoginModel, context: ApplicationContext) -> RedactedUser:
+        if not context.options.allow_account_creation:
+            raise MethodNotAllowedException(
+                detail="account creation not enabled w/o an invite")
+        result = await User.find_one(User.username == data.username)
+        if result:
+            raise MethodNotAllowedException(detail="username exists")
+
+        new_user = User.create(
+            data.username,
+            data.password,
+            admin=False)
+        await new_user.save()
+        session.user_id = new_user.id_hex
+        await session.save()
+        return new_user.redacted
