@@ -133,7 +133,8 @@
         }
       },
       "actions": {
-        "addLinked": "Add Linked Item"
+        "addLinked": "Add Linked Item",
+        "removeItem": "Remove Item"
       }
     }
   }

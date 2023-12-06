@@ -155,6 +155,21 @@ export function generateMethods(
                     return null;
                 }
             },
+            deleteItem: async (
+                method: "id" | "alias",
+                ref: string,
+                item: string
+            ): Promise<void> => {
+                await request<null>(
+                    `/grocery/lists/${method}/${ref}/item/${item.replace(
+                        /-/g,
+                        ""
+                    )}`,
+                    {
+                        method: "DELETE",
+                    }
+                );
+            },
         },
         user: {
             self: async (): Promise<User | null> => {

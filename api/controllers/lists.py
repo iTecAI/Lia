@@ -119,7 +119,6 @@ class ListsController(Controller):
         item_result.checked = True
         await item_result.save()
         await events.publish(f"list.{list_data.id_hex}", data={"action": "checkItem"})
-        return
 
     @delete("/item/{item:str}/checked", status_code=204)
     async def uncheck_list_item(self, list_data: GroceryList, item: str, events: Events) -> None:
@@ -130,7 +129,6 @@ class ListsController(Controller):
         item_result.checked = False
         await item_result.save()
         await events.publish(f"list.{list_data.id_hex}", data={"action": "uncheckItem"})
-        return
 
     @post("/item/{item:str}/update")
     async def update_item(self, list_data: GroceryList, item: str, events: Events, data: dict) -> GroceryListItem:
@@ -142,3 +140,12 @@ class ListsController(Controller):
         await item_result.save()
         await events.publish(f"list.{list_data.id_hex}", data={"action": "updateItem"})
         return item_result
+
+    @delete("/item/{item:str}")
+    async def delete_item(self, list_data: GroceryList, item: str, events: Events) -> None:
+        item_result = await GroceryListItem.get(item)
+        if not item_result:
+            raise NotFoundException(detail="Item not found.")
+
+        await item_result.delete()
+        await events.publish(f"list.{list_data.id_hex}", data={"action": "deleteItem"})

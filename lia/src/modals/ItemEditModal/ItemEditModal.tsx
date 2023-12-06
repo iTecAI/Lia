@@ -27,6 +27,7 @@ import {
     IconEdit,
     IconHash,
     IconInfoCircle,
+    IconLinkOff,
     IconLinkPlus,
     IconMapPin,
     IconMeat,
@@ -39,7 +40,8 @@ import "./modal.scss";
 import { capitalize } from "lodash";
 import { useDebouncedState, useDidUpdate, useMediaQuery } from "@mantine/hooks";
 import { useApiMethods } from "../../api";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
+import { modals } from "@mantine/modals";
 
 export function ItemEditModal({
     item,
@@ -262,7 +264,7 @@ export function ItemEditModal({
                                         variant="subtle"
                                         onClick={() => removeLinkedItem()}
                                     >
-                                        <IconTrashFilled />
+                                        <IconLinkOff />
                                     </ActionIcon>
                                     <ActionIcon size="lg" variant="subtle">
                                         <IconEdit />
@@ -347,7 +349,7 @@ export function ItemEditModal({
                                         variant="subtle"
                                         onClick={() => removeLinkedItem()}
                                     >
-                                        <IconTrashFilled />
+                                        <IconLinkOff />
                                     </ActionIcon>
                                     <ActionIcon size="lg" variant="subtle">
                                         <IconEdit />
@@ -368,6 +370,24 @@ export function ItemEditModal({
                         </Center>
                     )}
                 </Paper>
+                <Group justify="right" gap="sm">
+                    <Button
+                        leftSection={<IconTrashFilled size={20} />}
+                        color="red"
+                        onClick={() => {
+                            if (api) {
+                                api.list.deleteItem(
+                                    access.type,
+                                    access.reference,
+                                    item.id
+                                );
+                                setOpen(false);
+                            }
+                        }}
+                    >
+                        {t("modals.editItem.actions.removeItem")}
+                    </Button>
+                </Group>
             </Stack>
         </Modal>
     );
