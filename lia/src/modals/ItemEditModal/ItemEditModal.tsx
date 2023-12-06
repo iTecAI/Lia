@@ -146,6 +146,18 @@ export function ItemEditModal({
         }
     }, [item, api]);
 
+    useDidUpdate(() => {
+        if (!open) {
+            form.setValues({
+                name: item.name,
+                quantity: item.quantity,
+                categories: item.categories,
+                price: item.price,
+                location: item.location,
+            });
+        }
+    }, [item.name, item.quantity, item.categories, item.price, item.location]);
+
     return (
         <Modal
             title={
