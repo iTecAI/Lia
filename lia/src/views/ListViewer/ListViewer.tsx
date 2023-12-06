@@ -32,6 +32,7 @@ import { useModals } from "../../modals";
 import { useEvent } from "../../util/events";
 import { ListItemCard } from "./ItemCard";
 import { useTranslation } from "react-i18next";
+import { getCookie, setCookie } from "typescript-cookie";
 
 export function ListViewer() {
     const { method, reference } = useParams() as {
@@ -43,7 +44,9 @@ export function ListViewer() {
     const [list, setList] = useState<GroceryList | RecipeList | null>(null);
     const [favorite, setFavorite] = useState<boolean>(false);
     const { refreshLists } = useLayoutContext();
-    const [layout, setLayout] = useState<"list" | "grid">("list");
+    const [layout, setLayout] = useState<"list" | "grid">(
+        (getCookie("lia-pref-layout") as "list" | "grid") ?? "list"
+    );
     const isDesktop = useMediaQuery("(min-width: 48em)", true);
     const realLayout: typeof layout = useMemo(
         () => (isDesktop ? layout : "list"),
@@ -98,6 +101,10 @@ export function ListViewer() {
     }, [method, reference, api]);
 
     useEffect(loadItems, [method, reference, api]);
+
+    useEffect(() => {
+        setCookie("lia-pref-layout", layout);
+    }, [layout]);
 
     return list && api ? (
         <Stack gap="sm" className="view-wrapper">

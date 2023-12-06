@@ -10,14 +10,17 @@ import {
     Stack,
     Text,
     Title,
+    useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
     IconChecklist,
     IconListDetails,
     IconLogout,
+    IconMoonFilled,
     IconPlus,
     IconShieldCog,
+    IconSunFilled,
     IconUserCog,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -29,6 +32,7 @@ import { useModals } from "../../modals";
 import { AddListAction } from "../../modals/AddListModal";
 import { ListAccessSpec } from "../../types/list";
 import { ListCard } from "../../components/ListCard/ListCard";
+import { setCookie } from "typescript-cookie";
 
 export function Layout() {
     const [opened, { toggle }] = useDisclosure();
@@ -36,6 +40,7 @@ export function Layout() {
     const user = useUser();
     const connected = useApiConnection();
     const api = useApiMethods();
+    const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
     const nav = useNavigate();
     const location = useLocation();
@@ -92,23 +97,42 @@ export function Layout() {
             padding={0}
         >
             <AppShell.Header>
-                <Group h="100%" px="md">
-                    {user && (
-                        <Burger
-                            opened={opened}
-                            onClick={toggle}
-                            hiddenFrom="sm"
-                            size="sm"
-                        />
-                    )}
-                    <Group
-                        gap="sm"
-                        className="header-title"
-                        onClick={() => nav("/")}
-                    >
-                        <IconChecklist size={24} />
-                        <Title order={4}>{t("appName")}</Title>
+                <Group gap="sm" justify="space-between" h="100%" px="md">
+                    <Group h="100%" px="md">
+                        {user && (
+                            <Burger
+                                opened={opened}
+                                onClick={toggle}
+                                hiddenFrom="sm"
+                                size="sm"
+                            />
+                        )}
+                        <Group
+                            gap="sm"
+                            className="header-title"
+                            onClick={() => nav("/")}
+                        >
+                            <IconChecklist size={24} />
+                            <Title order={4}>{t("appName")}</Title>
+                        </Group>
                     </Group>
+                    <ActionIcon
+                        size="lg"
+                        onClick={() => {
+                            setCookie(
+                                "lia-pref-color",
+                                colorScheme === "dark" ? "light" : "dark"
+                            );
+                            toggleColorScheme();
+                        }}
+                        variant="transparent"
+                    >
+                        {colorScheme === "dark" ? (
+                            <IconSunFilled />
+                        ) : (
+                            <IconMoonFilled />
+                        )}
+                    </ActionIcon>
                 </Group>
             </AppShell.Header>
             {user && (

@@ -7,6 +7,7 @@ import { initReactI18next } from "react-i18next";
 import * as langEN from "./lang/en.json";
 import { ApiProvider } from "./api";
 import { Notifications } from "@mantine/notifications";
+import { getCookie } from "typescript-cookie";
 
 i18n.use(initReactI18next).init({
     resources: {
@@ -24,7 +25,11 @@ i18n.use(initReactI18next).init({
 
 function App() {
     return (
-        <MantineProvider defaultColorScheme="dark">
+        <MantineProvider
+            defaultColorScheme={
+                (getCookie("lia-pref-color") as "light" | "dark") ?? "dark"
+            }
+        >
             <ApiProvider>
                 <ModalsProvider>
                     <Notifications />
