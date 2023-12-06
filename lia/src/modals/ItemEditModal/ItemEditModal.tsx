@@ -254,7 +254,7 @@ export function ItemEditModal({
             debouncedVals
         );
     }, [
-        debouncedVals.categories,
+        debouncedVals.categories.length,
         debouncedVals.location,
         debouncedVals.name,
         debouncedVals.price,

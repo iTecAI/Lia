@@ -33,6 +33,7 @@ import { useEvent } from "../../util/events";
 import { ListItemCard } from "./ItemCard";
 import { useTranslation } from "react-i18next";
 import { getCookie, setCookie } from "typescript-cookie";
+import { ListSettingsModal } from "./SettingsModal";
 
 export function ListViewer() {
     const { method, reference } = useParams() as {
@@ -73,6 +74,23 @@ export function ListViewer() {
         loadItems
     );
 
+    const loadList = useCallback(() => {
+        if (api) {
+            api.list.get(method, reference).then((result) => {
+                if (result) {
+                    setList(result);
+                } else {
+                    nav("/");
+                }
+            });
+        }
+    }, [method, reference, api]);
+
+    useEvent<{ action: string }>(
+        `list.${(list?.id ?? "null").replace(/-/g, "")}.settings`,
+        loadList
+    );
+
     useEffect(() => {
         api &&
             api.user.favorites().then((favorites): void => {
@@ -88,17 +106,7 @@ export function ListViewer() {
             });
     }, [api, list]);
 
-    useEffect(() => {
-        if (api) {
-            api.list.get(method, reference).then((result) => {
-                if (result) {
-                    setList(result);
-                } else {
-                    nav("/");
-                }
-            });
-        }
-    }, [method, reference, api]);
+    useEffect(loadList, [method, reference, api]);
 
     useEffect(loadItems, [method, reference, api]);
 
@@ -106,123 +114,90 @@ export function ListViewer() {
         setCookie("lia-pref-layout", layout);
     }, [layout]);
 
+    const [settings, setSettings] = useState(false);
+
     return list && api ? (
-        <Stack gap="sm" className="view-wrapper">
-            <Group gap="sm" justify="space-between" pl="md" pr="md">
-                <Group gap="sm">
-                    <ActionIcon
-                        radius="xs"
-                        onClick={(event) => {
-                            event.stopPropagation();
-                            setFavorite(!favorite);
-                            api &&
-                                api.user
-                                    .toggleFavorite({ type: method, reference })
-                                    .then(refreshLists);
-                        }}
-                        variant="transparent"
-                        color={favorite ? "yellow" : "white"}
-                    >
-                        {favorite ? <IconStarFilled /> : <IconStar />}
-                    </ActionIcon>
-                    <Divider orientation="vertical" />
-                    {list.type === "grocery" ? (
-                        <IconChecklist />
-                    ) : (
-                        <IconListDetails />
-                    )}
-                    <Text size="lg">{list.name}</Text>
-                </Group>
-                <Group gap="sm">
-                    {isDesktop && (
-                        <SegmentedControl
-                            value={layout}
-                            onChange={setLayout as any}
-                            size="xs"
-                            data={[
-                                {
-                                    value: "list",
-                                    label: (
-                                        <IconLayoutList
-                                            style={{ marginTop: "5px" }}
-                                            size={20}
-                                        />
-                                    ),
-                                },
-                                {
-                                    value: "grid",
-                                    label: (
-                                        <IconLayoutKanban
-                                            style={{ marginTop: "5px" }}
-                                            size={20}
-                                        />
-                                    ),
-                                },
-                            ]}
-                        />
-                    )}
-                    {method === "id" && (
-                        <ActionIcon size="xl" variant="subtle">
-                            <IconSettings />
-                        </ActionIcon>
-                    )}
-                </Group>
-            </Group>
-            <Divider />
-            <ActionIcon
-                size="xl"
-                radius="xl"
-                className="add-item-button"
-                onClick={() => addItem({ type: method, reference }, list)}
-            >
-                <IconPlus size={32} />
-            </ActionIcon>
-            <ScrollArea className="items-area" type="auto">
-                {realLayout === "list" ? (
-                    <Stack gap="sm" pl="sm" pr="sm">
-                        {items
-                            .filter((i) => !i.checked)
-                            .map((v) => (
-                                <ListItemCard
-                                    key={v.id}
-                                    list={list}
-                                    item={v}
-                                    access={{ type: method, reference }}
-                                />
-                            ))}
-                        {items
-                            .filter((i) => i.checked)
-                            .map((v) => (
-                                <ListItemCard
-                                    key={v.id}
-                                    list={list}
-                                    item={v}
-                                    access={{ type: method, reference }}
-                                />
-                            ))}
-                    </Stack>
-                ) : (
-                    <Group
-                        gap="sm"
-                        pl="sm"
-                        pr="sm"
-                        style={{ minHeight: "calc(100vh - 156px)" }}
-                        align="start"
-                    >
-                        <Stack
-                            gap="sm"
-                            style={{
-                                width: "calc(50% - 13px)",
-                                height: "fit-content",
+        <>
+            <Stack gap="sm" className="view-wrapper">
+                <Group gap="sm" justify="space-between" pl="md" pr="md">
+                    <Group gap="sm">
+                        <ActionIcon
+                            radius="xs"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setFavorite(!favorite);
+                                api &&
+                                    api.user
+                                        .toggleFavorite({
+                                            type: method,
+                                            reference,
+                                        })
+                                        .then(refreshLists);
                             }}
+                            variant="transparent"
+                            color={favorite ? "yellow" : "white"}
                         >
-                            <Group gap="md" style={{ userSelect: "none" }}>
-                                <IconSquare size={32} />
-                                <Text size="lg">
-                                    {t("views.viewer.item.unchecked")}
-                                </Text>
-                            </Group>
-                            <Divider />
+                            {favorite ? <IconStarFilled /> : <IconStar />}
+                        </ActionIcon>
+                        <Divider orientation="vertical" />
+                        {list.type === "grocery" ? (
+                            <IconChecklist />
+                        ) : (
+                            <IconListDetails />
+                        )}
+                        <Text size="lg">{list.name}</Text>
+                    </Group>
+                    <Group gap="sm">
+                        {isDesktop && (
+                            <SegmentedControl
+                                value={layout}
+                                onChange={setLayout as any}
+                                size="xs"
+                                data={[
+                                    {
+                                        value: "list",
+                                        label: (
+                                            <IconLayoutList
+                                                style={{ marginTop: "5px" }}
+                                                size={20}
+                                            />
+                                        ),
+                                    },
+                                    {
+                                        value: "grid",
+                                        label: (
+                                            <IconLayoutKanban
+                                                style={{ marginTop: "5px" }}
+                                                size={20}
+                                            />
+                                        ),
+                                    },
+                                ]}
+                            />
+                        )}
+                        {method === "id" && (
+                            <ActionIcon
+                                size="xl"
+                                variant="subtle"
+                                onClick={() => setSettings(true)}
+                            >
+                                <IconSettings />
+                            </ActionIcon>
+                        )}
+                    </Group>
+                </Group>
+                <Divider />
+                <ActionIcon
+                    size="xl"
+                    radius="xl"
+                    className="add-item-button"
+                    onClick={() => addItem({ type: method, reference }, list)}
+                >
+                    <IconPlus size={32} />
+                </ActionIcon>
+                <ScrollArea className="items-area" type="auto">
+                    {realLayout === "list" ? (
+                        <Stack gap="sm" pl="sm" pr="sm">
                             {items
                                 .filter((i) => !i.checked)
                                 .map((v) => (
@@ -233,22 +208,6 @@ export function ListViewer() {
                                         access={{ type: method, reference }}
                                     />
                                 ))}
-                        </Stack>
-                        <Divider orientation="vertical" />
-                        <Stack
-                            gap="sm"
-                            style={{
-                                width: "calc(50% - 13px)",
-                                height: "fit-content",
-                            }}
-                        >
-                            <Group gap="md" style={{ userSelect: "none" }}>
-                                <IconCheckbox size={32} />
-                                <Text size="lg">
-                                    {t("views.viewer.item.checked")}
-                                </Text>
-                            </Group>
-                            <Divider />
                             {items
                                 .filter((i) => i.checked)
                                 .map((v) => (
@@ -260,10 +219,76 @@ export function ListViewer() {
                                     />
                                 ))}
                         </Stack>
-                    </Group>
-                )}
-            </ScrollArea>
-        </Stack>
+                    ) : (
+                        <Group
+                            gap="sm"
+                            pl="sm"
+                            pr="sm"
+                            style={{ minHeight: "calc(100vh - 156px)" }}
+                            align="start"
+                        >
+                            <Stack
+                                gap="sm"
+                                style={{
+                                    width: "calc(50% - 13px)",
+                                    height: "fit-content",
+                                }}
+                            >
+                                <Group gap="md" style={{ userSelect: "none" }}>
+                                    <IconSquare size={32} />
+                                    <Text size="lg">
+                                        {t("views.viewer.item.unchecked")}
+                                    </Text>
+                                </Group>
+                                <Divider />
+                                {items
+                                    .filter((i) => !i.checked)
+                                    .map((v) => (
+                                        <ListItemCard
+                                            key={v.id}
+                                            list={list}
+                                            item={v}
+                                            access={{ type: method, reference }}
+                                        />
+                                    ))}
+                            </Stack>
+                            <Divider orientation="vertical" />
+                            <Stack
+                                gap="sm"
+                                style={{
+                                    width: "calc(50% - 13px)",
+                                    height: "fit-content",
+                                }}
+                            >
+                                <Group gap="md" style={{ userSelect: "none" }}>
+                                    <IconCheckbox size={32} />
+                                    <Text size="lg">
+                                        {t("views.viewer.item.checked")}
+                                    </Text>
+                                </Group>
+                                <Divider />
+                                {items
+                                    .filter((i) => i.checked)
+                                    .map((v) => (
+                                        <ListItemCard
+                                            key={v.id}
+                                            list={list}
+                                            item={v}
+                                            access={{ type: method, reference }}
+                                        />
+                                    ))}
+                            </Stack>
+                        </Group>
+                    )}
+                </ScrollArea>
+            </Stack>
+            <ListSettingsModal
+                open={settings}
+                setOpen={setSettings}
+                list={list}
+                access={{ type: method, reference }}
+            />
+        </>
     ) : (
         <Box className="loader-wrapper">
             <Loader className="loading-list" size="xl" />

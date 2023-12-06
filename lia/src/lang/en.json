@@ -144,6 +144,20 @@
         "noResults": "No Results",
         "label": "Results"
       }
+    },
+    "listSettings": {
+      "title": "List Settings",
+      "fields": {
+        "name": {
+          "label": "Name"
+        },
+        "stores": {
+          "label": "Stores"
+        }
+      },
+      "actions": {
+        "save": "Save Settings"
+      }
     }
   }
 }
