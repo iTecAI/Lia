@@ -2,7 +2,13 @@ import { ApiResponse } from ".";
 import { User } from "../types/auth";
 import { AccessReference, DeepPartial, Favorite } from "../types/extra";
 import { GroceryItem } from "../types/grocery";
-import { GroceryList, ListAccessSpec, ListItem } from "../types/list";
+import { ListInvite } from "../types/invites";
+import {
+    GroceryList,
+    ListAccessSpec,
+    ListItem,
+    RecipeList,
+} from "../types/list";
 
 export function generateMethods(
     request: <T>(
@@ -191,6 +197,37 @@ export function generateMethods(
                         method: "DELETE",
                     }
                 );
+            },
+            updateSettings: async (
+                id: string,
+                name: string,
+                stores: string[]
+            ): Promise<GroceryList | RecipeList | null> => {
+                const result = await request<GroceryList | RecipeList>(
+                    `/grocery/lists/${id}/settings`,
+                    {
+                        method: "POST",
+                        body: {
+                            name,
+                            stores,
+                        },
+                    }
+                );
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return null;
+                }
+            },
+            listInvites: async (id: string): Promise<ListInvite[] | null> => {
+                const result = await request<ListInvite[]>(
+                    `/grocery/lists/${id}/invites`
+                );
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return null;
+                }
             },
         },
         user: {

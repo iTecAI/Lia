@@ -3,7 +3,7 @@ from litestar import Controller, delete, get, post
 from litestar.connection import ASGIConnection
 from litestar.handlers.base import BaseRouteHandler
 from litestar.di import Provide
-from litestar.exceptions import NotFoundException, ValidationException
+from litestar.exceptions import NotFoundException, ValidationException, MethodNotAllowedException
 from models import *
 from pydantic import BaseModel
 from util import Events
@@ -24,22 +24,9 @@ class ListItemCreationModel(BaseModel):
     linked_item: Any
 
 
-class ListController(Controller):
-    path = "/grocery/lists"
-    guards = [guard_logged_in]
-    dependencies = {"user": Provide(depends_user)}
-
-    @post("/create")
-    async def create_list(self, user: User, data: ListCreationModel) -> GroceryList:
-        new_list = GroceryList(
-            name=data.name,
-            owner_id=user.id_hex,
-            included_stores=data.stores,
-            type=data.type,
-        )
-        await new_list.save()
-        return new_list
-
+class ListSettingsModel(BaseModel):
+    name: str
+    stores: list[str]
 
 async def guard_list_access(
     connection: ASGIConnection, handler: BaseRouteHandler
@@ -67,6 +54,51 @@ async def depends_list(method: str, reference: str) -> GroceryList:
     else:
         # TODO: Update for alias support
         return await GroceryList.get(reference)
+
+
+class ListController(Controller):
+    path = "/grocery/lists"
+    guards = [guard_logged_in]
+    dependencies = {"user": Provide(depends_user)}
+
+    @post("/create")
+    async def create_list(self, user: User, data: ListCreationModel) -> GroceryList:
+        new_list = GroceryList(
+            name=data.name,
+            owner_id=user.id_hex,
+            included_stores=data.stores,
+            type=data.type,
+        )
+        await new_list.save()
+        return new_list
+
+    @post("/{list_id: str}/settings")
+    async def update_list_settings(self, user: User, list_id: str, data: ListSettingsModel, events: Events) -> GroceryList:
+        result = await GroceryList.get(list_id)
+        if not result:
+            raise NotFoundException(detail="List not found.")
+
+        if result.owner_id != user.id_hex:
+            raise MethodNotAllowedException(
+                detail="List not owned by current user.")
+
+        result.name = data.name
+        result.included_stores = data.stores
+        await result.save()
+        await events.publish(f"list.{list_id}.settings", data={})
+        return result
+
+    @get("/{list_id: str}/invites")
+    async def get_list_invites(self, user: User, list_id: str) -> list[ListInvite]:
+        result = await GroceryList.get(list_id)
+        if not result:
+            raise NotFoundException(detail="List not found.")
+
+        if result.owner_id != user.id_hex:
+            raise MethodNotAllowedException(
+                detail="List not owned by current user.")
+
+        return await ListInvite.find(ListInvite.reference == list_id).to_list()
 
 
 class ListsController(Controller):

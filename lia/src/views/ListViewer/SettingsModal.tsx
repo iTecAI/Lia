@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { useInputState } from "@mantine/hooks";
 import { useEffect } from "react";
 import { capitalize } from "lodash";
+import { useLayoutContext } from "../Layout/ctx";
 
 export function ListSettingsModal({
     list,
@@ -37,6 +38,7 @@ export function ListSettingsModal({
     const [listName, setListName] = useInputState("");
     const [listStores, setListStores] = useInputState<string[]>([]);
     const apiSettings = useApiSettings();
+    const layoutContext = useLayoutContext();
 
     useEffect(() => {
         setListName(list.name);
@@ -77,7 +79,24 @@ export function ListSettingsModal({
                     }
                 />
                 <Group justify="right">
-                    <Button leftSection={<IconDeviceFloppy />}>
+                    <Button
+                        leftSection={<IconDeviceFloppy />}
+                        disabled={listName.length < 1}
+                        onClick={() => {
+                            if (api) {
+                                api.list
+                                    .updateSettings(
+                                        access.reference,
+                                        listName,
+                                        listStores
+                                    )
+                                    .then(() => {
+                                        setOpen(false);
+                                        layoutContext.refreshLists();
+                                    });
+                            }
+                        }}
+                    >
                         {t("modals.listSettings.actions.save")}
                     </Button>
                 </Group>
