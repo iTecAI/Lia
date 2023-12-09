@@ -38,7 +38,7 @@ class InviteController(Controller):
         await new_invite.save()
         return new_invite
 
-    @get("/{invite_type:str}/{uri:str}")
+    @get("/item/{invite_type:str}/{uri:str}")
     async def get_invite(self, invite_type: Literal["account", "list"], uri: str) -> Union[AccountCreationInvite, ListInvite]:
         if invite_type == "account":
             result = await AccountCreationInvite.get_uri(uri)
@@ -49,3 +49,26 @@ class InviteController(Controller):
             raise NotFoundException(detail="Invite URI not found.")
 
         return result
+
+    @delete("/item/{invite_type:str}/{uri:str}", status_code=204)
+    async def delete_invite(self, invite_type: Literal["account", "list"], uri: str, user: User) -> None:
+        if invite_type == "account":
+            result = await AccountCreationInvite.get_uri(uri)
+        else:
+            result = await ListInvite.get_uri(uri)
+
+        if not result:
+            raise NotFoundException(detail="Invite URI not found.")
+
+        if result.type == "create_account" and not user.admin:
+            raise NotAuthorizedException(
+                detail="Account invites cannot be modified by non-admin users.")
+
+        if result.type == "list":
+            list_result = await GroceryList.get(result.reference)
+            if list_result and not list_result.owner_id == user.id_hex:
+                raise MethodNotAllowedException(
+                    detail="You do not own the referenced list.")
+
+        await result.delete()
+        return None

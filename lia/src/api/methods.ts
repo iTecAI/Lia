@@ -306,5 +306,27 @@ export function generateMethods(
                 }
             },
         },
+        invites: {
+            createListInvite: async (
+                listId: string
+            ): Promise<ListInvite | null> => {
+                const result = await request<ListInvite>(
+                    `/invites/list/${listId}`,
+                    {
+                        method: "POST",
+                    }
+                );
+                if (result.success) {
+                    return result.data;
+                } else {
+                    return null;
+                }
+            },
+            deleteListInvite: async (uri: string): Promise<void> => {
+                await request<ListInvite>(`/invites/item/list/${uri}`, {
+                    method: "DELETE",
+                });
+            },
+        },
     };
 }

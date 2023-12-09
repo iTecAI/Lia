@@ -185,6 +185,10 @@
       },
       "actions": {
         "save": "Save Settings"
+      },
+      "invites": {
+        "title": "List Invites",
+        "addInvite": "Create Invite"
       }
     }
   }
