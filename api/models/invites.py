@@ -50,3 +50,4 @@ class ListInvite(BaseDocument):
     @classmethod
     async def get_uri(cls, uri: str) -> Optional["ListInvite"]:
         return await ListInvite.find_one(ListInvite.type == "list" and ListInvite.uri == uri)
+

@@ -18,3 +18,11 @@ class Favorite(BaseDocument):
     
     class Settings:
         name = "favorites"
+
+
+class JoinedList(BaseDocument):
+    user_id: str
+    invite_uri: str
+
+    class Settings:
+        name = "joined_lists"
