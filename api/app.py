@@ -87,6 +87,7 @@ app = Litestar(
         UserController,
         ListsController,
         GroceryController,
+        InviteController
     ],
     state=State({"context": ApplicationContext(), "events": Events(channels)}),
     lifespan=[setup_context],
