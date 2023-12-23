@@ -161,9 +161,7 @@ export function ListSettingsModal({
                                 <Group gap="sm">
                                     <ActionIcon
                                         size="lg"
-                                        disabled={
-                                            !Boolean(window.navigator.clipboard)
-                                        }
+                                        disabled={!window.navigator.clipboard}
                                         variant="subtle"
                                         onClick={() =>
                                             window.navigator.clipboard.writeText(
@@ -181,10 +179,9 @@ export function ListSettingsModal({
                                         color="red"
                                         onClick={() => {
                                             if (api) {
-                                                api.invites.deleteListInvite(
-                                                    i.uri
-                                                );
-                                                updateInviteList();
+                                                api.invites
+                                                    .deleteListInvite(i.uri)
+                                                    .then(updateInviteList);
                                             }
                                         }}
                                     >
