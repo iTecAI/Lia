@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 import { isString } from "lodash";
 import { useApiMethods } from "../../api";
 import { ItemEditModal } from "../../modals/ItemEditModal/ItemEditModal";
+import { useDidUpdate } from "@mantine/hooks";
 
 export function ListItemCard({
     list,
@@ -37,19 +38,24 @@ export function ListItemCard({
     const [quantity, setQuantity] = useState(item.quantity.amount);
     const api = useApiMethods();
     const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
-    const [denyQtUpdate, setDenyQtUpdate] = useState(false);
+
+    useDidUpdate(
+        () => setQuantity(item.quantity.amount),
+        [item.quantity.amount]
+    );
 
     useEffect(() => {
         if (quantity !== item.quantity.amount && api) {
-            if (denyQtUpdate) {
+            /*if (denyQtUpdate) {
+                console.log("DENIED");
                 setDenyQtUpdate(false);
                 return;
-            }
+            }*/
             api.list.updateItem(access.type, access.reference, item.id, {
                 quantity: { amount: quantity },
             });
         }
-    }, [quantity, item.quantity.amount]);
+    }, [quantity]);
 
     return (
         <>
@@ -169,7 +175,6 @@ export function ListItemCard({
                 list={list}
                 open={detailsOpen}
                 setOpen={setDetailsOpen}
-                denyQuantityUpdate={() => setDenyQtUpdate(true)}
             />
         </>
     );

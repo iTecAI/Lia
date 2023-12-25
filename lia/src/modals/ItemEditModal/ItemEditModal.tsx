@@ -173,14 +173,12 @@ export function ItemEditModal({
     list,
     open,
     setOpen,
-    denyQuantityUpdate,
 }: {
     item: ListItem;
     access: AccessReference;
     list: GroceryList | RecipeList;
     open: boolean;
     setOpen: (open: boolean) => void;
-    denyQuantityUpdate: () => void;
 }) {
     const { t } = useTranslation();
     const isDesktop = useMediaQuery("(min-width: 48em)", true);
@@ -210,6 +208,18 @@ export function ItemEditModal({
                     : t("modals.editItem.fields.name.error"),
         },
     });
+
+    useDidUpdate(
+        () =>
+            form.setValues({
+                name: item.name,
+                quantity: item.quantity,
+                categories: item.categories,
+                price: item.price,
+                location: item.location,
+            }),
+        [item.name, item.quantity, item.categories, item.price, item.location]
+    );
 
     const api = useApiMethods();
     const [debouncedVals, setDebouncedVals] = useDebouncedState<
@@ -246,7 +256,6 @@ export function ItemEditModal({
     ]);
 
     useDidUpdate(() => {
-        denyQuantityUpdate();
         api?.list.updateItem(
             access.type,
             access.reference,

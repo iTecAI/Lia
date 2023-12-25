@@ -24,6 +24,10 @@ class QuantitySpec(BaseModel):
     unit: Optional[str]
 
 
+class AmountSpec(BaseModel):
+    amount: float
+
+
 class AlternativeSpec(BaseModel):
     alternative_to: str
     index: int
@@ -34,7 +38,7 @@ class GroceryListItem(BaseDocument):
     list_id: str
     added_by: str
     checked: bool
-    quantity: Union[Any, QuantitySpec]
+    quantity: Union[QuantitySpec, AmountSpec]
     alternative: Optional[AlternativeSpec]
     categories: list[str]
     price: Optional[float]

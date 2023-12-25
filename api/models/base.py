@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 from beanie import Document
 from pydantic import Field, BaseModel
 
+
 class BaseDocument(Document):
     id: UUID = Field(default_factory=uuid4)
 
@@ -15,14 +16,15 @@ class BaseDocument(Document):
         return self.id.bytes
 
     @staticmethod
-    def _update(destination: Union[BaseModel, Document],
-                source: dict) -> Union[BaseModel, Document]:
+    def _update(
+        destination: Union[BaseModel, Document], source: dict
+    ) -> Union[BaseModel, Document]:
         for k, v in source.items():
             if hasattr(destination, k):
                 if type(getattr(destination, k)) == dict:
                     setattr(
-                        destination, k, BaseDocument._update(
-                            getattr(destination, k), v))
+                        destination, k, BaseDocument._update(getattr(destination, k), v)
+                    )
                 else:
                     setattr(destination, k, v)
         return destination
