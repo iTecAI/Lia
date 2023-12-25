@@ -60,7 +60,12 @@ export function Layout() {
     const addListCompletion = useCallback(
         async (action: AddListAction, mode: "lists" | "recipes") => {
             if (action.type === "add") {
-                console.log(action);
+                if (api) {
+                    const result = await api.user.joinList(action.invite);
+                    if (result) {
+                        api.user.lists().then(setLists);
+                    }
+                }
             } else {
                 if (api) {
                     const result = await api.list.create(

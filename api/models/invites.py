@@ -16,19 +16,21 @@ class AccountCreationInvite(BaseDocument):
 
     @classmethod
     def create(
-            cls,
-            uses_remaining: int = None,
-            expires: datetime = None) -> "AccountCreationInvite":
+        cls, uses_remaining: int = None, expires: datetime = None
+    ) -> "AccountCreationInvite":
         return AccountCreationInvite(
             type="create_account",
             uri=token_urlsafe(nbytes=12),
             uses_remaining=uses_remaining,
-            expires=expires
+            expires=expires,
         )
 
     @classmethod
     async def get_uri(cls, uri: str) -> Optional["AccountCreationInvite"]:
-        return await AccountCreationInvite.find_one(AccountCreationInvite.type == "create_account" and AccountCreationInvite.uri == uri)
+        return await AccountCreationInvite.find_one(
+            AccountCreationInvite.type == "create_account"
+            and AccountCreationInvite.uri == uri
+        )
 
 
 class ListInvite(BaseDocument):
@@ -42,12 +44,11 @@ class ListInvite(BaseDocument):
     @classmethod
     def create(cls, reference: GroceryList) -> "ListInvite":
         return ListInvite(
-            type="list",
-            uri=token_urlsafe(nbytes=12),
-            reference=reference.id_hex
+            type="list", uri=token_urlsafe(nbytes=12)[:12], reference=reference.id_hex
         )
 
     @classmethod
     async def get_uri(cls, uri: str) -> Optional["ListInvite"]:
-        return await ListInvite.find_one(ListInvite.type == "list" and ListInvite.uri == uri)
-
+        return await ListInvite.find_one(
+            ListInvite.type == "list" and ListInvite.uri == uri
+        )

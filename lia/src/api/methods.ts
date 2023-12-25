@@ -284,6 +284,23 @@ export function generateMethods(
                     }
                 }
             },
+            joinList: async (uri: string): Promise<boolean> => {
+                let parsed: string;
+                if (uri.length === 12) {
+                    parsed = uri;
+                } else {
+                    parsed = uri.split("/join/")[1];
+                }
+
+                const result = await request<any>(`/user/join/${parsed}`, {
+                    method: "POST",
+                });
+                if (result.success) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
         },
         groceries: {
             search: async (

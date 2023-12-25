@@ -60,6 +60,7 @@ export function ListSettingsModal({
     const updateInviteList = useCallback(
         () =>
             api &&
+            access.type === "id" &&
             api.list
                 .listInvites(access.reference)
                 .then((result) =>

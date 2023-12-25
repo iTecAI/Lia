@@ -27,14 +27,27 @@ class ApplicationContext:
 
     async def setup(self):
         client = AsyncIOMotorClient(self.options.mongo_uri)
-        await init_beanie(database=client.lia, document_models=[Session, User, GroceryListItem, GroceryList, Favorite, AccountCreationInvite, ListInvite])
+        await init_beanie(
+            database=client.lia,
+            document_models=[
+                Session,
+                User,
+                GroceryListItem,
+                GroceryList,
+                Favorite,
+                AccountCreationInvite,
+                ListInvite,
+                JoinedList,
+            ],
+        )
 
         root_user = await User.find_one(User.username == self.options.root_user)
         if not root_user or self.options.recreate_root:
             if root_user:
                 await User.delete()
             new_root = User.create(
-                self.options.root_user, self.options.root_password, admin=True)
+                self.options.root_user, self.options.root_password, admin=True
+            )
             await new_root.insert()
 
         self.ready = True
@@ -45,9 +58,8 @@ class ApplicationContext:
             root_user=getenv("ROOT_USER", "root"),
             root_password=getenv("ROOT_PASSWORD", "root"),
             recreate_root=getenv("RECREATE_ROOT", "false") == "true",
-            allow_account_creation=getenv(
-                "ALLOW_ACCOUNT_CREATION", "false") == "true",
+            allow_account_creation=getenv("ALLOW_ACCOUNT_CREATION", "false") == "true",
             store_location=getenv("STORE_LOCATION", "Times Square"),
             store_support=getenv("STORE_SUPPORT", "wegmans,costco").split(","),
-            session_expire=int(getenv("SESSION_EXPIRE", "259200"))
+            session_expire=int(getenv("SESSION_EXPIRE", "259200")),
         )

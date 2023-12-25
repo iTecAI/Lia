@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 from .base import BaseDocument
 from pydantic import BaseModel
 from open_groceries import GroceryItem
@@ -34,7 +34,7 @@ class GroceryListItem(BaseDocument):
     list_id: str
     added_by: str
     checked: bool
-    quantity: QuantitySpec
+    quantity: Union[Any, QuantitySpec]
     alternative: Optional[AlternativeSpec]
     categories: list[str]
     price: Optional[float]

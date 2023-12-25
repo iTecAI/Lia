@@ -3,7 +3,11 @@ from litestar import Controller, delete, get, post
 from litestar.connection import ASGIConnection
 from litestar.handlers.base import BaseRouteHandler
 from litestar.di import Provide
-from litestar.exceptions import NotFoundException, ValidationException, MethodNotAllowedException
+from litestar.exceptions import (
+    NotFoundException,
+    ValidationException,
+    MethodNotAllowedException,
+)
 from models import *
 from pydantic import BaseModel
 from util import Events
@@ -28,6 +32,7 @@ class ListSettingsModel(BaseModel):
     name: str
     stores: list[str]
 
+
 async def guard_list_access(
     connection: ASGIConnection, handler: BaseRouteHandler
 ) -> None:
@@ -41,9 +46,23 @@ async def guard_list_access(
         result = await GroceryList.get(connection.path_params.get("reference", "null"))
         if not result or result.owner_id != session.user_id:
             raise NotFoundException(
-                detail=f"List with id {id} does not exist, or you cannot access it by ID")
+                detail=f"List with id {id} does not exist, or you cannot access it by ID"
+            )
         return None
     if method == "alias":
+        invite = await ListInvite.get_uri(
+            connection.path_params.get("reference", "null")
+        )
+        if not invite:
+            raise NotFoundException(detail="Requested list alias does not exist.")
+
+        result = await GroceryList.get(invite.reference)
+        if not result:
+            await invite.delete()
+            raise NotFoundException(
+                detail="Referenced alias has been unlinked and is no longer accessible."
+            )
+
         return None
     raise ValidationException(detail="Invalid method")
 
@@ -52,8 +71,10 @@ async def depends_list(method: str, reference: str) -> GroceryList:
     if method == "id":
         return await GroceryList.get(reference)
     else:
-        # TODO: Update for alias support
-        return await GroceryList.get(reference)
+        invite = await ListInvite.get_uri(reference)
+        if invite:
+            return await GroceryList.get(invite.reference)
+        return None
 
 
 class ListController(Controller):
@@ -73,14 +94,15 @@ class ListController(Controller):
         return new_list
 
     @post("/{list_id: str}/settings")
-    async def update_list_settings(self, user: User, list_id: str, data: ListSettingsModel, events: Events) -> GroceryList:
+    async def update_list_settings(
+        self, user: User, list_id: str, data: ListSettingsModel, events: Events
+    ) -> GroceryList:
         result = await GroceryList.get(list_id)
         if not result:
             raise NotFoundException(detail="List not found.")
 
         if result.owner_id != user.id_hex:
-            raise MethodNotAllowedException(
-                detail="List not owned by current user.")
+            raise MethodNotAllowedException(detail="List not owned by current user.")
 
         result.name = data.name
         result.included_stores = data.stores
@@ -95,8 +117,7 @@ class ListController(Controller):
             raise NotFoundException(detail="List not found.")
 
         if result.owner_id != user.id_hex:
-            raise MethodNotAllowedException(
-                detail="List not owned by current user.")
+            raise MethodNotAllowedException(detail="List not owned by current user.")
 
         return await ListInvite.find(ListInvite.reference == list_id).to_list()
 
@@ -123,7 +144,7 @@ class ListsController(Controller):
         user: User,
         list_data: GroceryList,
         data: ListItemCreationModel,
-        events: Events
+        events: Events,
     ) -> GroceryListItem:
         new_item = GroceryListItem(
             name=data.name,
@@ -134,16 +155,20 @@ class ListsController(Controller):
             alternative=None,
             categories=data.categories,
             price=data.price,
-            location=data.location if data.location and len(
-                data.location) > 0 else None,
+            location=data.location
+            if data.location and len(data.location) > 0
+            else None,
             linked_item=data.linked_item,
-            recipe=None)
+            recipe=None,
+        )
         await new_item.save()
         await events.publish(f"list.{list_data.id_hex}", data={"action": "addItem"})
         return new_item
 
     @post("/item/{item:str}/checked", status_code=204)
-    async def check_list_item(self, list_data: GroceryList, item: str, events: Events) -> None:
+    async def check_list_item(
+        self, list_data: GroceryList, item: str, events: Events
+    ) -> None:
         item_result = await GroceryListItem.get(item)
         if not item_result:
             raise NotFoundException(detail="Item not found.")
@@ -153,7 +178,9 @@ class ListsController(Controller):
         await events.publish(f"list.{list_data.id_hex}", data={"action": "checkItem"})
 
     @delete("/item/{item:str}/checked", status_code=204)
-    async def uncheck_list_item(self, list_data: GroceryList, item: str, events: Events) -> None:
+    async def uncheck_list_item(
+        self, list_data: GroceryList, item: str, events: Events
+    ) -> None:
         item_result = await GroceryListItem.get(item)
         if not item_result:
             raise NotFoundException(detail="Item not found.")
@@ -163,7 +190,9 @@ class ListsController(Controller):
         await events.publish(f"list.{list_data.id_hex}", data={"action": "uncheckItem"})
 
     @post("/item/{item:str}/update")
-    async def update_item(self, list_data: GroceryList, item: str, events: Events, data: dict) -> GroceryListItem:
+    async def update_item(
+        self, list_data: GroceryList, item: str, events: Events, data: dict
+    ) -> GroceryListItem:
         item_result = await GroceryListItem.get(item)
         if not item_result:
             raise NotFoundException(detail="Item not found.")
@@ -174,7 +203,9 @@ class ListsController(Controller):
         return item_result
 
     @delete("/item/{item:str}")
-    async def delete_item(self, list_data: GroceryList, item: str, events: Events) -> None:
+    async def delete_item(
+        self, list_data: GroceryList, item: str, events: Events
+    ) -> None:
         item_result = await GroceryListItem.get(item)
         if not item_result:
             raise NotFoundException(detail="Item not found.")
