@@ -74,6 +74,11 @@ export function ListViewer() {
         loadItems
     );
 
+    useEvent<null>(
+        `list.${(list?.id ?? "null").replace(/-/g, "")}.delete`,
+        () => nav("/")
+    );
+
     const loadList = useCallback(() => {
         if (api) {
             api.list.get(method, reference).then((result) => {

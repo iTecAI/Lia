@@ -212,3 +212,21 @@ class ListsController(Controller):
 
         await item_result.delete()
         await events.publish(f"list.{list_data.id_hex}", data={"action": "deleteItem"})
+
+    @delete("/")
+    async def delete_or_leave(
+        self, list_data: GroceryList, events: Events, user: User, reference: str
+    ) -> None:
+        if list_data.owner_id == user.id_hex:
+            await GroceryListItem.find(
+                GroceryListItem.list_id == list_data.id_hex
+            ).delete()
+            await list_data.delete()
+            await events.publish(f"list.{list_data.id_hex}.delete")
+        else:
+            result = await JoinedList.find_one(JoinedList.invite_uri == reference)
+            if not result:
+                raise NotFoundException(detail="Not a member of specified list.")
+
+            await result.delete()
+            await Favorite.find(Favorite.reference.reference == reference).delete()

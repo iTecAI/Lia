@@ -229,6 +229,14 @@ export function generateMethods(
                     return null;
                 }
             },
+            deleteOrLeave: async (
+                method: "id" | "alias",
+                ref: string
+            ): Promise<void> => {
+                await request<null>(`/grocery/lists/${method}/${ref}`, {
+                    method: "DELETE",
+                });
+            },
         },
         user: {
             self: async (): Promise<User | null> => {
