@@ -21,10 +21,10 @@ import {
     IconListDetails,
     IconChecklist,
     IconLayoutList,
-    IconPlus,
     IconLayoutKanban,
     IconSquare,
     IconCheckbox,
+    IconShoppingBagPlus,
 } from "@tabler/icons-react";
 import { useLayoutContext } from "../Layout/ctx";
 import { useMediaQuery } from "@mantine/hooks";
@@ -157,6 +157,15 @@ export function ListViewer() {
                         <Text size="lg">{list.name}</Text>
                     </Group>
                     <Group gap="sm">
+                        <ActionIcon
+                            size="lg"
+                            radius="xl"
+                            onClick={() =>
+                                addItem({ type: method, reference }, list)
+                            }
+                        >
+                            <IconShoppingBagPlus size={20} />
+                        </ActionIcon>
                         {isDesktop && (
                             <SegmentedControl
                                 value={layout}
@@ -196,14 +205,6 @@ export function ListViewer() {
                     </Group>
                 </Group>
                 <Divider />
-                <ActionIcon
-                    size="xl"
-                    radius="xl"
-                    className="add-item-button"
-                    onClick={() => addItem({ type: method, reference }, list)}
-                >
-                    <IconPlus size={32} />
-                </ActionIcon>
                 <ScrollArea className="items-area" type="auto">
                     {realLayout === "list" ? (
                         <Stack gap="sm" pl="sm" pr="sm">
