@@ -1,0 +1,34 @@
+{
+  "listeners": {
+    "*:80": {
+      "pass": "routes"
+    }
+  },
+
+  "routes": [
+    {
+      "match": {
+        "uri": "/api/*"
+      },
+      "action": {
+        "rewrite": "`/${uri.split('/api/')[1]}`",
+        "pass": "applications/litestar"
+      }
+    },
+    {
+      "action": {
+        "share": "/app/ui/dist/$uri"
+      }
+    }
+  ],
+
+  "applications": {
+    "litestar": {
+      "type": "python 3.11",
+      "path": "/app/api",
+      "module": "app",
+      "callable": "app",
+      "processes": 1
+    }
+  }
+}

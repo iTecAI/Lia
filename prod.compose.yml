@@ -1,0 +1,29 @@
+services:
+  mongoProd:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+
+    volumes:
+      - ./data/mongo:/data/db
+  main:
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 80:80
+    environment:
+      - MONGO_URI=mongodb://mongoProd:27017
+      - ROOT_USER=root
+      - ROOT_PASSWORD=root
+      - RECREATE_ROOT=false
+      - ALLOW_ACCOUNT_CREATION=true
+      - STORE_LOCATION=Rochester Institute of Technology
+      - STORE_SUPPORT=wegmans,costco
+      - SESSION_EXPIRE=259200
+
+    stop_signal: SIGINT
+    depends_on:
+      - mongoProd
