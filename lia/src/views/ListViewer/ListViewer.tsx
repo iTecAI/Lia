@@ -56,6 +56,7 @@ export function ListViewer() {
     const { addItem } = useModals();
     const [items, setItems] = useState<ListItem[]>([]);
     const { t } = useTranslation();
+    const layoutContext = useLayoutContext();
 
     const loadItems = useCallback(() => {
         if (api) {
@@ -76,7 +77,10 @@ export function ListViewer() {
 
     useEvent<null>(
         `list.${(list?.id ?? "null").replace(/-/g, "")}.delete`,
-        () => nav("/")
+        () => {
+            layoutContext.refreshLists();
+            nav("/");
+        }
     );
 
     const loadList = useCallback(() => {

@@ -184,7 +184,8 @@
         }
       },
       "actions": {
-        "save": "Save Settings"
+        "save": "Save Settings",
+        "delete": "Delete List"
       },
       "invites": {
         "title": "List Invites",

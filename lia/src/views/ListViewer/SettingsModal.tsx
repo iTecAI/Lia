@@ -31,6 +31,7 @@ import { useCallback, useEffect, useState } from "react";
 import { capitalize } from "lodash";
 import { useLayoutContext } from "../Layout/ctx";
 import { ListInvite } from "../../types/invites";
+import { useNavigate } from "react-router-dom";
 
 export function ListSettingsModal({
     list,
@@ -51,6 +52,7 @@ export function ListSettingsModal({
     const layoutContext = useLayoutContext();
     const [invites, setInvites] = useState<ListInvite[]>([]);
     const isDesktop = useMediaQuery("(min-width: 48em)", true);
+    const nav = useNavigate();
 
     useEffect(() => {
         setListName(list.name);
@@ -106,11 +108,28 @@ export function ListSettingsModal({
                             : []
                     }
                 />
-                <Group justify="right">
+                <Group justify="space-between">
+                    <Button
+                        leftSection={<IconTrash />}
+                        color={"red"}
+                        variant="subtle"
+                        onClick={() => {
+                            if (api) {
+                                api.list
+                                    .deleteOrLeave("id", access.reference)
+                                    .then(() => {
+                                        layoutContext.refreshLists();
+                                        nav("/");
+                                    });
+                            }
+                        }}
+                    >
+                        {t("modals.listSettings.actions.delete")}
+                    </Button>
                     <Button
                         leftSection={<IconDeviceFloppy />}
                         disabled={listName.length < 1}
-                        variant="subtle"
+                        variant="filled"
                         onClick={() => {
                             if (api) {
                                 api.list
