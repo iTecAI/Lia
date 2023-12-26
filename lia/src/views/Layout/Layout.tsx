@@ -256,9 +256,9 @@ export function Layout() {
                                     <IconShieldCog />
                                 </ActionIcon>
                             )}
-                            <ActionIcon size="lg" variant="subtle">
+                            {/*<ActionIcon size="lg" variant="subtle">
                                 <IconUserCog />
-                            </ActionIcon>
+                            </ActionIcon>*/}
                             <Button
                                 className="logout-action"
                                 rightSection={<IconLogout />}
