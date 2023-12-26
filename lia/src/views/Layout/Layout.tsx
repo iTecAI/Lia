@@ -147,7 +147,7 @@ export function Layout() {
             {user && (
                 <AppShell.Navbar p="sm" className="list-nav">
                     <Stack gap="sm" h={"100%"}>
-                        <SegmentedControl
+                        {/*<SegmentedControl
                             value={listDisplay}
                             onChange={setListDisplay as any}
                             fullWidth
@@ -179,7 +179,7 @@ export function Layout() {
                                     ),
                                 },
                             ]}
-                        />
+                        />*/}
                         <ScrollArea className="list-container" type="scroll">
                             <Stack gap="sm" className="list-stack">
                                 {lists
@@ -251,11 +251,11 @@ export function Layout() {
                         </Button>
                         <Divider />
                         <Group gap="sm">
-                            {user.admin && (
+                            {/*user.admin && (
                                 <ActionIcon size="lg" variant="subtle">
                                     <IconShieldCog />
                                 </ActionIcon>
-                            )}
+                            )*/}
                             {/*<ActionIcon size="lg" variant="subtle">
                                 <IconUserCog />
                             </ActionIcon>*/}
